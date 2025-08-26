@@ -6,6 +6,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	"github.com/todo-app/services/admin-service/internal/auth"
 	"github.com/todo-app/services/admin-service/internal/model/domain"
 	"github.com/todo-app/services/admin-service/internal/repository"
 	"github.com/todo-app/services/admin-service/internal/service"
@@ -37,15 +38,23 @@ func (h *TagHandler) CreateTag(ctx context.Context, req *todov1.CreateTagRequest
 		return nil, status.Error(codes.InvalidArgument, "name is required")
 	}
 
-	// Create domain tag
-	tag := &domain.Tag{
-		Name:      req.GetName(),
-		Color:     req.GetColor(),
-		CreatorID: "system", // TODO: Get from auth context
+	// Get user ID from auth context
+	creatorID := auth.GetUserIDFromContext(ctx)
+	if creatorID == "" {
+		h.logger.Warn(ctx, "No user ID found in context, using system")
+		creatorID = "system" // Fallback for unauthenticated requests
 	}
 
-	// Set default color if not provided
-	if tag.Color == "" {
+	// Create domain tag with required fields
+	tag := &domain.Tag{
+		Name:      req.GetName(),
+		CreatorID: creatorID,
+	}
+
+	// Set optional color if provided, otherwise use default
+	if req.Color != nil {
+		tag.Color = *req.Color
+	} else {
 		tag.Color = "#6B7280" // Default gray
 	}
 
@@ -135,12 +144,12 @@ func (h *TagHandler) UpdateTag(ctx context.Context, req *todov1.UpdateTagRequest
 			currentTag.Version, req.GetVersion())
 	}
 
-	// Update fields that are provided
-	if req.GetName() != "" {
-		currentTag.Name = req.GetName()
-	}
-	if req.GetColor() != "" {
-		currentTag.Color = req.GetColor()
+	// Update fields that are provided (using proper optional field semantics)
+	currentTag.Name = req.GetName() // Always update name (required field)
+	
+	// Update optional color if provided
+	if req.Color != nil {
+		currentTag.Color = *req.Color
 	}
 
 	// Update tag via service

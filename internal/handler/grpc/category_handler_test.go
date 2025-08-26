@@ -67,9 +67,13 @@ func (m *mockCategoryService) RestoreCategory(ctx context.Context, id string, ve
 	return nil, nil
 }
 
-func (m *mockCategoryService) ListCategories(ctx context.Context, opts repository.ListOptions) ([]*domain.Category, int64, error) {
+func (m *mockCategoryService) ListCategories(ctx context.Context, opts repository.CategoryListOptions) ([]*domain.Category, int64, error) {
 	categories := make([]*domain.Category, 0, len(m.categories))
 	for _, category := range m.categories {
+		// Apply public-only filter if requested
+		if opts.PublicOnly && !category.IsPublic {
+			continue
+		}
 		categories = append(categories, category)
 	}
 	return categories, int64(len(categories)), nil
@@ -105,8 +109,8 @@ func TestCategoryHandler_CreateCategory(t *testing.T) {
 			name: "successful creation",
 			request: &todov1.CreateCategoryRequest{
 				Name:        "Work",
-				Description: "Work related tasks",
-				Color:       "#FF0000",
+				Description: stringPtr("Work related tasks"),
+				Color:       stringPtr("#FF0000"),
 				IsPublic:    true,
 			},
 			wantErr: false,
@@ -115,7 +119,7 @@ func TestCategoryHandler_CreateCategory(t *testing.T) {
 			name: "successful creation with default color",
 			request: &todov1.CreateCategoryRequest{
 				Name:        "Personal",
-				Description: "Personal tasks",
+				Description: stringPtr("Personal tasks"),
 				IsPublic:    false,
 			},
 			wantErr: false,
@@ -167,7 +171,7 @@ func TestCategoryHandler_CreateCategory(t *testing.T) {
 			}
 
 			// Check default color was set if not provided
-			if tt.request.Color == "" && resp.Category.Color != "#6B7280" {
+			if tt.request.Color == nil && resp.Category.Color != "#6B7280" {
 				t.Errorf("expected default color #6B7280, got %s", resp.Category.Color)
 			}
 
@@ -277,8 +281,8 @@ func TestCategoryHandler_UpdateCategory(t *testing.T) {
 			request: &todov1.UpdateCategoryRequest{
 				CategoryId:  "category-1",
 				Name:        "Updated Name",
-				Description: "Updated Description",
-				Color:       "#00FF00",
+				Description: stringPtr("Updated Description"),
+				Color:       stringPtr("#00FF00"),
 				IsPublic:    true,
 				Version:     1,
 			},

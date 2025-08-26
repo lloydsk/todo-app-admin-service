@@ -364,8 +364,8 @@ func TestAdminHandler_CreateTask(t *testing.T) {
 			name: "successful creation",
 			request: &todov1.CreateTaskRequest{
 				Title:       "Test Task",
-				Description: "Test Description",
-				AssigneeId:  "user-1",
+				Description: stringPtr("Test Description"),
+				AssigneeId:  stringPtr("user-1"),
 			},
 			wantErr: false,
 		},
@@ -373,7 +373,7 @@ func TestAdminHandler_CreateTask(t *testing.T) {
 			name: "empty title",
 			request: &todov1.CreateTaskRequest{
 				Title:      "",
-				AssigneeId: "user-1",
+				AssigneeId: stringPtr("user-1"),
 			},
 			wantErr:    true,
 			wantStatus: codes.InvalidArgument,
@@ -382,7 +382,7 @@ func TestAdminHandler_CreateTask(t *testing.T) {
 			name: "empty assignee ID",
 			request: &todov1.CreateTaskRequest{
 				Title:      "Test Task",
-				AssigneeId: "",
+				AssigneeId: stringPtr(""),
 			},
 			wantErr:    true,
 			wantStatus: codes.InvalidArgument,

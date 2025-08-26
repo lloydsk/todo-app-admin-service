@@ -6,6 +6,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	"github.com/todo-app/services/admin-service/internal/auth"
 	"github.com/todo-app/services/admin-service/internal/model/domain"
 	"github.com/todo-app/services/admin-service/internal/repository"
 	"github.com/todo-app/services/admin-service/internal/service"
@@ -37,23 +38,38 @@ func (h *CategoryHandler) CreateCategory(ctx context.Context, req *todov1.Create
 		return nil, status.Error(codes.InvalidArgument, "name is required")
 	}
 
-	// Create domain category
+	// Get user ID from auth context
+	creatorID := auth.GetUserIDFromContext(ctx)
+	if creatorID == "" {
+		h.logger.Warn(ctx, "No user ID found in context, using system")
+		creatorID = "system" // Fallback for unauthenticated requests
+	}
+
+	// Create domain category with required fields
 	category := &domain.Category{
-		Name:        req.GetName(),
-		Description: req.GetDescription(),
-		Color:       req.GetColor(),
-		IsPublic:    req.GetIsPublic(),
-		CreatorID:   "system", // TODO: Get from auth context
+		Name:      req.GetName(),
+		IsPublic:  req.GetIsPublic(),
+		CreatorID: creatorID,
 	}
 
-	// Set parent ID if provided
-	if req.GetParentId() != "" {
-		category.ParentID = &req.ParentId
+	// Set optional description if provided
+	if req.Description != nil {
+		category.Description = *req.Description
 	}
 
-	// Set default color if not provided
-	if category.Color == "" {
+	// Set optional color if provided, otherwise use default
+	if req.Color != nil {
+		category.Color = *req.Color
+	} else {
 		category.Color = "#6B7280" // Default gray
+	}
+
+	// Set optional parent ID if provided
+	if req.ParentId != nil {
+		parentId := *req.ParentId
+		if parentId != "" {
+			category.ParentID = &parentId
+		}
 	}
 
 	// Create category via service
@@ -77,33 +93,24 @@ func (h *CategoryHandler) ListCategories(ctx context.Context, req *todov1.ListCa
 	h.logger.Info(ctx, "Listing categories via gRPC", "page_info", req.GetPageInfo())
 
 	// Convert pagination info
-	opts := repository.ListOptions{
-		Page:           0, // Default to first page for now
-		PageSize:       req.GetPageInfo().GetPageSize(),
-		IncludeDeleted: req.GetIncludeDeleted(),
+	opts := repository.CategoryListOptions{
+		ListOptions: repository.ListOptions{
+			Page:           0, // Default to first page for now
+			PageSize:       req.GetPageInfo().GetPageSize(),
+			IncludeDeleted: req.GetIncludeDeleted(),
+		},
+		PublicOnly: req.GetPublicOnly(),
 	}
 
 	if opts.PageSize == 0 {
 		opts.PageSize = 50 // Default page size
 	}
 
-	// Get categories from service
+	// Get categories from service (filtering is now handled at the database level)
 	categories, total, err := h.categoryService.ListCategories(ctx, opts)
 	if err != nil {
 		h.logger.Error(ctx, "Failed to list categories", "error", err)
 		return nil, status.Errorf(codes.Internal, "failed to list categories: %v", err)
-	}
-
-	// Filter by public only if requested
-	if req.GetPublicOnly() {
-		filteredCategories := make([]*domain.Category, 0, len(categories))
-		for _, category := range categories {
-			if category.IsPublic {
-				filteredCategories = append(filteredCategories, category)
-			}
-		}
-		categories = filteredCategories
-		total = int64(len(categories)) // Recalculate total for filtered results
 	}
 
 	// Convert domain categories to protobuf
@@ -153,25 +160,35 @@ func (h *CategoryHandler) UpdateCategory(ctx context.Context, req *todov1.Update
 			currentCategory.Version, req.GetVersion())
 	}
 
-	// Update fields that are provided
-	if req.GetName() != "" {
-		currentCategory.Name = req.GetName()
+	// Update fields that are provided (using proper optional field semantics)
+	currentCategory.Name = req.GetName() // Always update name (required field)
+	
+	// Update optional description if provided
+	if req.Description != nil {
+		currentCategory.Description = *req.Description
 	}
-	if req.GetDescription() != "" {
-		currentCategory.Description = req.GetDescription()
-	}
-	if req.GetColor() != "" {
-		currentCategory.Color = req.GetColor()
-	}
-
-	// Update parent ID (can be set to empty to remove parent)
-	if req.GetParentId() != "" {
-		currentCategory.ParentID = &req.ParentId
-	} else {
-		currentCategory.ParentID = nil
+	
+	// Update optional color if provided  
+	if req.Color != nil {
+		currentCategory.Color = *req.Color
 	}
 
-	// Update public flag
+	// Update parent ID with proper optional field semantics
+	if req.ParentId != nil {
+		parentId := *req.ParentId
+		if parentId == "" {
+			// Empty string means explicitly remove parent
+			h.logger.Info(ctx, "Explicitly removing parent from category", "category_id", req.GetCategoryId())
+			currentCategory.ParentID = nil
+		} else {
+			// Non-empty string means set parent
+			h.logger.Info(ctx, "Setting parent for category", "category_id", req.GetCategoryId(), "parent_id", parentId)
+			currentCategory.ParentID = &parentId
+		}
+	}
+	// If ParentId field is nil, we don't change the current parent (leave it as-is)
+
+	// Update public flag (always update - required field)
 	currentCategory.IsPublic = req.GetIsPublic()
 
 	// Update category via service

@@ -109,7 +109,7 @@ func TestTagHandler_CreateTag(t *testing.T) {
 			name: "successful creation",
 			request: &todov1.CreateTagRequest{
 				Name:  "urgent",
-				Color: "#FF0000",
+				Color: stringPtr("#FF0000"),
 			},
 			wantErr: false,
 		},
@@ -167,7 +167,7 @@ func TestTagHandler_CreateTag(t *testing.T) {
 			}
 
 			// Check default color was set if not provided
-			if tt.request.Color == "" && resp.Tag.Color != "#6B7280" {
+			if tt.request.Color == nil && resp.Tag.Color != "#6B7280" {
 				t.Errorf("expected default color #6B7280, got %s", resp.Tag.Color)
 			}
 
@@ -275,7 +275,7 @@ func TestTagHandler_UpdateTag(t *testing.T) {
 			request: &todov1.UpdateTagRequest{
 				TagId:   "tag-1",
 				Name:    "updated-name",
-				Color:   "#00FF00",
+				Color:   stringPtr("#00FF00"),
 				Version: 1,
 			},
 			wantErr: false,
