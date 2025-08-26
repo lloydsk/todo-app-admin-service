@@ -37,7 +37,6 @@ type DatabaseConfig struct {
 	ConnMaxLifetime time.Duration `json:"conn_max_lifetime"`
 }
 
-
 // LoadConfig loads configuration from environment variables with sensible defaults
 func LoadConfig() (*Config, error) {
 	config := &Config{

@@ -41,7 +41,6 @@ func TestTask(assigneeID string) *domain.Task {
 	}
 }
 
-
 // TestCategory creates a test category
 func TestCategory() *domain.Category {
 	return &domain.Category{
@@ -63,4 +62,3 @@ func TestTag() *domain.Tag {
 		CreatorID: "test-creator-id",
 	}
 }
-

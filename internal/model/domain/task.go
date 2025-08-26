@@ -62,7 +62,6 @@ type TaskHistoryEntry struct {
 	Details     string    `json:"details" db:"details"` // JSON string
 }
 
-
 // ToProtobuf converts domain Task to protobuf Task
 func (t *Task) ToProtobuf() *pb.Task {
 	var status pb.TaskStatus
@@ -115,7 +114,7 @@ func (t *Task) ToProtobuf() *pb.Task {
 		task.CategoryIds = append(task.CategoryIds, cat.ID)
 	}
 
-	// Convert tags  
+	// Convert tags
 	for _, tag := range t.Tags {
 		task.TagIds = append(task.TagIds, tag.ID)
 	}
@@ -124,7 +123,6 @@ func (t *Task) ToProtobuf() *pb.Task {
 	for _, entry := range t.History {
 		task.History = append(task.History, entry.ToProtobuf())
 	}
-
 
 	return task
 }
@@ -140,7 +138,6 @@ func (h *TaskHistoryEntry) ToProtobuf() *pb.TaskHistoryEntry {
 		Details:   h.Details,
 	}
 }
-
 
 // Category and Tag ToProtobuf methods are defined in types.go
 

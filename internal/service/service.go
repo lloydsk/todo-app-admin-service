@@ -17,7 +17,7 @@ type ServiceDependencies struct {
 // NewServices creates a new Services instance with all service implementations
 func NewServices(deps ServiceDependencies) *Services {
 	userService := NewUserService(deps.UserRepo, deps.Logger)
-	
+
 	taskService := NewTaskService(
 		deps.TaskRepo,
 		deps.UserRepo,
@@ -25,19 +25,19 @@ func NewServices(deps ServiceDependencies) *Services {
 		deps.TagRepo,
 		deps.Logger,
 	)
-	
+
 	categoryService := NewCategoryService(
 		deps.CategoryRepo,
 		deps.TaskRepo,
 		deps.Logger,
 	)
-	
+
 	tagService := NewTagService(
 		deps.TagRepo,
 		deps.TaskRepo,
 		deps.Logger,
 	)
-	
+
 	return &Services{
 		User:     userService,
 		Task:     taskService,

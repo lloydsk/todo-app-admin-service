@@ -9,7 +9,7 @@ import (
 // AssertUserEqual verifies two users are equal (excluding timestamps and version)
 func AssertUserEqual(t *testing.T, expected, actual *domain.User, message string) {
 	t.Helper()
-	
+
 	if expected.ID != actual.ID {
 		t.Errorf("%s: ID mismatch - expected %s, got %s", message, expected.ID, actual.ID)
 	}
@@ -27,7 +27,7 @@ func AssertUserEqual(t *testing.T, expected, actual *domain.User, message string
 // AssertTaskEqual verifies two tasks are equal (excluding timestamps and version)
 func AssertTaskEqual(t *testing.T, expected, actual *domain.Task, message string) {
 	t.Helper()
-	
+
 	if expected.ID != actual.ID {
 		t.Errorf("%s: ID mismatch - expected %s, got %s", message, expected.ID, actual.ID)
 	}
@@ -51,7 +51,7 @@ func AssertTaskEqual(t *testing.T, expected, actual *domain.Task, message string
 // AssertCategoryEqual verifies two categories are equal
 func AssertCategoryEqual(t *testing.T, expected, actual *domain.Category, message string) {
 	t.Helper()
-	
+
 	if expected.ID != actual.ID {
 		t.Errorf("%s: ID mismatch - expected %s, got %s", message, expected.ID, actual.ID)
 	}
@@ -69,7 +69,7 @@ func AssertCategoryEqual(t *testing.T, expected, actual *domain.Category, messag
 // AssertTagEqual verifies two tags are equal
 func AssertTagEqual(t *testing.T, expected, actual *domain.Tag, message string) {
 	t.Helper()
-	
+
 	if expected.ID != actual.ID {
 		t.Errorf("%s: ID mismatch - expected %s, got %s", message, expected.ID, actual.ID)
 	}
@@ -97,13 +97,12 @@ func AssertError(t *testing.T, err error, message string) {
 	}
 }
 
-
 // AssertVersionIncremented verifies that the version was incremented
 func AssertVersionIncremented(t *testing.T, originalVersion, newVersion int64, message string) {
 	t.Helper()
-	
+
 	if newVersion != originalVersion+1 {
-		t.Errorf("%s: version not incremented correctly - expected %d, got %d", 
+		t.Errorf("%s: version not incremented correctly - expected %d, got %d",
 			message, originalVersion+1, newVersion)
 	}
 }

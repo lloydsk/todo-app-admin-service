@@ -31,7 +31,7 @@ func NewAdminHandler(services *service.Services, logger logger.Logger) *AdminHan
 // ListUsers lists users with pagination
 func (h *AdminHandler) ListUsers(ctx context.Context, req *todov1.ListUsersRequest) (*todov1.ListUsersResponse, error) {
 	h.logger.Info(ctx, "Listing users via gRPC", "page_info", req.GetPageInfo())
-	
+
 	// TODO: Implement user listing
 	return nil, status.Error(codes.Unimplemented, "ListUsers not yet implemented")
 }
@@ -39,7 +39,7 @@ func (h *AdminHandler) ListUsers(ctx context.Context, req *todov1.ListUsersReque
 // GetUser retrieves a user by ID
 func (h *AdminHandler) GetUser(ctx context.Context, req *todov1.GetUserRequest) (*todov1.GetUserResponse, error) {
 	h.logger.Info(ctx, "Getting user via gRPC", "user_id", req.GetUserId())
-	
+
 	// TODO: Implement user retrieval
 	return nil, status.Error(codes.Unimplemented, "GetUser not yet implemented")
 }
@@ -49,7 +49,7 @@ func (h *AdminHandler) GetUser(ctx context.Context, req *todov1.GetUserRequest) 
 // CreateTask creates a new task
 func (h *AdminHandler) CreateTask(ctx context.Context, req *todov1.CreateTaskRequest) (*todov1.CreateTaskResponse, error) {
 	h.logger.Info(ctx, "Creating task via gRPC", "title", req.GetTitle())
-	
+
 	// TODO: Implement task creation
 	return nil, status.Error(codes.Unimplemented, "CreateTask not yet implemented")
 }
@@ -57,7 +57,7 @@ func (h *AdminHandler) CreateTask(ctx context.Context, req *todov1.CreateTaskReq
 // ListTasks lists tasks with filtering and pagination
 func (h *AdminHandler) ListTasks(ctx context.Context, req *todov1.ListTasksRequest) (*todov1.ListTasksResponse, error) {
 	h.logger.Info(ctx, "Listing tasks via gRPC", "assignee_id", req.GetAssigneeId())
-	
+
 	// TODO: Implement task listing
 	return nil, status.Error(codes.Unimplemented, "ListTasks not yet implemented")
 }
@@ -65,7 +65,7 @@ func (h *AdminHandler) ListTasks(ctx context.Context, req *todov1.ListTasksReque
 // GetTask retrieves a task by ID
 func (h *AdminHandler) GetTask(ctx context.Context, req *todov1.GetTaskRequest) (*todov1.GetTaskResponse, error) {
 	h.logger.Info(ctx, "Getting task via gRPC", "task_id", req.GetTaskId())
-	
+
 	// TODO: Implement task retrieval
 	return nil, status.Error(codes.Unimplemented, "GetTask not yet implemented")
 }
@@ -73,7 +73,7 @@ func (h *AdminHandler) GetTask(ctx context.Context, req *todov1.GetTaskRequest) 
 // UpdateTask updates an existing task
 func (h *AdminHandler) UpdateTask(ctx context.Context, req *todov1.UpdateTaskRequest) (*todov1.UpdateTaskResponse, error) {
 	h.logger.Info(ctx, "Updating task via gRPC", "task_id", req.GetTaskId())
-	
+
 	// TODO: Implement task update
 	return nil, status.Error(codes.Unimplemented, "UpdateTask not yet implemented")
 }
@@ -81,7 +81,7 @@ func (h *AdminHandler) UpdateTask(ctx context.Context, req *todov1.UpdateTaskReq
 // GetTaskHistory retrieves task history
 func (h *AdminHandler) GetTaskHistory(ctx context.Context, req *todov1.GetTaskHistoryRequest) (*todov1.GetTaskHistoryResponse, error) {
 	h.logger.Info(ctx, "Getting task history via gRPC", "task_id", req.GetTaskId())
-	
+
 	// TODO: Implement task history retrieval
 	return nil, status.Error(codes.Unimplemented, "GetTaskHistory not yet implemented")
 }

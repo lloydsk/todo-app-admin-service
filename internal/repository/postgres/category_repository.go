@@ -55,7 +55,7 @@ func (r *categoryRepository) GetByID(ctx context.Context, id string) (*domain.Ca
 		WHERE id = $1 AND is_deleted = false`
 
 	category := &domain.Category{}
-	
+
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
 		&category.ID, &category.Name, &category.Description, &category.Color,
 		&category.ParentID, &category.IsPublic, &category.CreatorID,

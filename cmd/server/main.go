@@ -44,7 +44,7 @@ func main() {
 	// Health check database
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	
+
 	if err := dbConn.HealthCheck(ctx); err != nil {
 		log.Error(context.Background(), "Database health check failed", "error", err)
 		os.Exit(1)
@@ -108,7 +108,7 @@ func main() {
 
 		// Graceful shutdown
 		log.Info(context.Background(), "Starting graceful shutdown...")
-		
+
 		// Create shutdown context with timeout
 		shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer shutdownCancel()
@@ -143,13 +143,13 @@ func loggingInterceptor(log logger.Logger) grpc.UnaryServerInterceptor {
 		handler grpc.UnaryHandler,
 	) (interface{}, error) {
 		start := time.Now()
-		
+
 		resp, err := handler(ctx, req)
-		
+
 		duration := time.Since(start)
-		
+
 		if err != nil {
-			log.Error(ctx, "gRPC request failed", 
+			log.Error(ctx, "gRPC request failed",
 				"method", info.FullMethod,
 				"duration", duration,
 				"error", err,
@@ -160,7 +160,7 @@ func loggingInterceptor(log logger.Logger) grpc.UnaryServerInterceptor {
 				"duration", duration,
 			)
 		}
-		
+
 		return resp, err
 	}
 }

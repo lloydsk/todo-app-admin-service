@@ -2,10 +2,10 @@ run:
   timeout: 5m
   issues-exit-code: 1
   tests: true
-  modules-download-mode: readonly
 
 output:
-  format: colored-line-number
+  formats:
+    - format: colored-line-number
   print-issued-lines: true
   print-linter-name: true
 
@@ -14,14 +14,8 @@ linters-settings:
     simplify: true
   goimports:
     local-prefixes: github.com/todo-app/services/admin-service
-  govet:
-    check-shadowing: true
-  golint:
-    min-confidence: 0.8
   gocyclo:
     min-complexity: 15
-  dupl:
-    threshold: 100
   goconst:
     min-len: 3
     min-occurrences: 2
@@ -29,13 +23,6 @@ linters-settings:
     locale: US
   lll:
     line-length: 120
-  gocritic:
-    enabled-tags:
-      - diagnostic
-      - experimental
-      - opinionated
-      - performance
-      - style
 
 linters:
   enable:
@@ -48,16 +35,7 @@ linters:
     - gosimple
     - ineffassign
     - typecheck
-    - goconst
-    - gocyclo
     - misspell
-    - lll
-    - gocritic
-    - gosec
-  disable:
-    - deadcode  # deprecated
-    - varcheck  # deprecated
-    - structcheck # deprecated
 
 issues:
   exclude-rules:

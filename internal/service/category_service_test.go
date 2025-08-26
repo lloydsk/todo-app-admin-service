@@ -26,7 +26,7 @@ func (m *mockCategoryRepository) Create(ctx context.Context, category *domain.Ca
 	if _, exists := m.nameIndex[category.Name]; exists {
 		return domain.ErrConflict("category with this name already exists")
 	}
-	
+
 	category.ID = "mock-category-" + category.Name
 	category.Version = 1
 	m.categories[category.ID] = category
@@ -50,7 +50,7 @@ func (m *mockCategoryRepository) Update(ctx context.Context, category *domain.Ca
 	if existing.Version != category.Version {
 		return domain.ErrVersionConflict("category", category.Version, existing.Version)
 	}
-	
+
 	category.Version++
 	if existing.Name != category.Name {
 		delete(m.nameIndex, existing.Name)
@@ -68,7 +68,7 @@ func (m *mockCategoryRepository) SoftDelete(ctx context.Context, id string, vers
 	if existing.Version != version {
 		return domain.ErrVersionConflict("category", version, existing.Version)
 	}
-	
+
 	existing.IsDeleted = true
 	existing.Version++
 	delete(m.categories, id)
@@ -121,7 +121,7 @@ func (m *mockTaskRepository) Update(ctx context.Context, task *domain.Task) erro
 	if existing.Version != task.Version {
 		return domain.ErrVersionConflict("task", task.Version, existing.Version)
 	}
-	
+
 	task.Version++
 	m.tasks[task.ID] = task
 	return nil
@@ -135,7 +135,7 @@ func (m *mockTaskRepository) SoftDelete(ctx context.Context, id string, version 
 	if existing.Version != version {
 		return domain.ErrVersionConflict("task", version, existing.Version)
 	}
-	
+
 	existing.IsDeleted = true
 	existing.Version++
 	delete(m.tasks, id)
@@ -201,9 +201,9 @@ func TestCategoryService_CreateCategory(t *testing.T) {
 	ctx := context.Background()
 
 	tests := []struct {
-		name    string
+		name     string
 		category *domain.Category
-		wantErr bool
+		wantErr  bool
 	}{
 		{
 			name: "valid category creation",

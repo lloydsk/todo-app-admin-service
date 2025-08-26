@@ -55,7 +55,7 @@ func setupTestServer(t *testing.T) (*grpc.Server, *bufconn.Listener, todov1.Admi
 	// Health check database
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	
+
 	if err := dbConn.HealthCheck(ctx); err != nil {
 		t.Skipf("Database health check failed: %v", err)
 		return nil, nil, nil
@@ -112,7 +112,7 @@ func TestServerStartup(t *testing.T) {
 	if server == nil {
 		return // Test was skipped due to database unavailability
 	}
-	
+
 	defer server.Stop()
 	defer lis.Close()
 
@@ -139,7 +139,7 @@ func TestGracefulShutdown(t *testing.T) {
 	if server == nil {
 		return // Test was skipped due to database unavailability
 	}
-	
+
 	defer lis.Close()
 
 	// Test graceful shutdown
