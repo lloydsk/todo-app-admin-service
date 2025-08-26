@@ -46,7 +46,7 @@ func setupTagTestDB(t *testing.T) (*db.Connection, string) {
 
 	err = userRepo.Create(ctx, testUser)
 	if err != nil {
-		t.Skipf("Failed to create test user for tags: %v", err)
+		t.Fatalf("Failed to create test user for tags: %v", err)
 	}
 
 	return dbConn, testUser.ID
