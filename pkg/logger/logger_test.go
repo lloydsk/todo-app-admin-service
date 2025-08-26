@@ -90,24 +90,24 @@ func TestLogger_WithKeyValuePairs(t *testing.T) {
 
 	// Test logging with various key-value pairs
 	tests := []struct {
-		name     string
-		keyvals  []interface{}
+		name    string
+		keyvals []interface{}
 	}{
 		{
-			name:     "even number of arguments",
-			keyvals:  []interface{}{"key1", "value1", "key2", "value2"},
+			name:    "even number of arguments",
+			keyvals: []interface{}{"key1", "value1", "key2", "value2"},
 		},
 		{
-			name:     "odd number of arguments - should handle gracefully",
-			keyvals:  []interface{}{"key1", "value1", "orphan"},
+			name:    "odd number of arguments - should handle gracefully",
+			keyvals: []interface{}{"key1", "value1", "orphan"},
 		},
 		{
-			name:     "no key-value pairs",
-			keyvals:  []interface{}{},
+			name:    "no key-value pairs",
+			keyvals: []interface{}{},
 		},
 		{
-			name:     "mixed types",
-			keyvals:  []interface{}{"string_key", "string_value", "int_key", 42, "bool_key", true},
+			name:    "mixed types",
+			keyvals: []interface{}{"string_key", "string_value", "int_key", 42, "bool_key", true},
 		},
 	}
 

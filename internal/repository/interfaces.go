@@ -26,15 +26,15 @@ type TaskRepository interface {
 	Update(ctx context.Context, task *domain.Task) error
 	SoftDelete(ctx context.Context, id string, version int64) error
 	Restore(ctx context.Context, id string, version int64) error
-	
+
 	// Category associations
 	AddCategories(ctx context.Context, taskID string, categoryIDs []string, version int64) error
 	RemoveCategories(ctx context.Context, taskID string, categoryIDs []string, version int64) error
-	
+
 	// Tag associations
 	AddTags(ctx context.Context, taskID string, tagIDs []string, version int64) error
 	RemoveTags(ctx context.Context, taskID string, tagIDs []string, version int64) error
-	
+
 	// History
 	GetHistory(ctx context.Context, taskID string) ([]*domain.TaskHistory, error)
 }
@@ -71,24 +71,24 @@ type TransactionManager interface {
 
 // ListOptions defines common list query options
 type ListOptions struct {
-	Page         int32  `json:"page"`
-	PageSize     int32  `json:"page_size"`
-	SearchQuery  string `json:"search_query"`
-	IncludeDeleted bool  `json:"include_deleted"`
-	SortBy       string `json:"sort_by"`
-	SortDesc     bool   `json:"sort_desc"`
+	Page           int32  `json:"page"`
+	PageSize       int32  `json:"page_size"`
+	SearchQuery    string `json:"search_query"`
+	IncludeDeleted bool   `json:"include_deleted"`
+	SortBy         string `json:"sort_by"`
+	SortDesc       bool   `json:"sort_desc"`
 }
 
 // TaskListOptions defines task-specific list options
 type TaskListOptions struct {
 	ListOptions
-	AssigneeID   string              `json:"assignee_id"`
-	Status       domain.TaskStatus   `json:"status"`
-	Priority     domain.TaskPriority `json:"priority"`
-	CategoryIDs  []string            `json:"category_ids"`
-	TagIDs       []string            `json:"tag_ids"`
-	DueBefore    *string             `json:"due_before"` // ISO timestamp
-	DueAfter     *string             `json:"due_after"`  // ISO timestamp
+	AssigneeID  string              `json:"assignee_id"`
+	Status      domain.TaskStatus   `json:"status"`
+	Priority    domain.TaskPriority `json:"priority"`
+	CategoryIDs []string            `json:"category_ids"`
+	TagIDs      []string            `json:"tag_ids"`
+	DueBefore   *string             `json:"due_before"` // ISO timestamp
+	DueAfter    *string             `json:"due_after"`  // ISO timestamp
 }
 
 // CategoryListOptions defines category-specific list options

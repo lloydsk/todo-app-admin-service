@@ -17,7 +17,7 @@ type UserService interface {
 	DeleteUser(ctx context.Context, id string, version int64) error
 	RestoreUser(ctx context.Context, id string, version int64) (*domain.User, error)
 	ListUsers(ctx context.Context, opts repository.ListOptions) ([]*domain.User, int64, error)
-	
+
 	// Business logic methods
 	ChangeUserRole(ctx context.Context, userID string, newRole domain.UserRole, version int64) (*domain.User, error)
 	ValidateUserPermissions(ctx context.Context, userID string, requiredRole domain.UserRole) error
@@ -32,7 +32,7 @@ type TaskService interface {
 	DeleteTask(ctx context.Context, id string, version int64) error
 	RestoreTask(ctx context.Context, id string, version int64) (*domain.Task, error)
 	ListTasks(ctx context.Context, opts repository.TaskListOptions) ([]*domain.Task, int64, error)
-	
+
 	// Business logic methods
 	AssignTask(ctx context.Context, taskID, assigneeID string, version int64) (*domain.Task, error)
 	ChangeTaskStatus(ctx context.Context, taskID string, status domain.TaskStatus, version int64) (*domain.Task, error)
@@ -53,7 +53,7 @@ type CategoryService interface {
 	DeleteCategory(ctx context.Context, id string, version int64) error
 	RestoreCategory(ctx context.Context, id string, version int64) (*domain.Category, error)
 	ListCategories(ctx context.Context, opts repository.ListOptions) ([]*domain.Category, int64, error)
-	
+
 	// Business logic methods
 	ValidateCategoryUsage(ctx context.Context, categoryID string) error
 	GetCategoryTaskCount(ctx context.Context, categoryID string) (int64, error)
@@ -68,7 +68,7 @@ type TagService interface {
 	DeleteTag(ctx context.Context, id string, version int64) error
 	RestoreTag(ctx context.Context, id string, version int64) (*domain.Tag, error)
 	ListTags(ctx context.Context, opts repository.ListOptions) ([]*domain.Tag, int64, error)
-	
+
 	// Business logic methods
 	ValidateTagUsage(ctx context.Context, tagID string) error
 	GetTagTaskCount(ctx context.Context, tagID string) (int64, error)

@@ -26,7 +26,7 @@ func (r *taskRepository) Create(ctx context.Context, task *domain.Task) error {
 	if task.ID == "" {
 		task.ID = uuid.New().String()
 	}
-	
+
 	now := time.Now()
 	task.CreatedAt = now
 	task.UpdatedAt = now
@@ -57,13 +57,13 @@ func (r *taskRepository) GetByID(ctx context.Context, id string) (*domain.Task, 
 
 	task := &domain.Task{}
 	var status, priority string
-	
+
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
 		&task.ID, &task.Title, &task.Description, &task.AssigneeID,
 		&status, &priority, &task.DueDate,
 		&task.CreatedAt, &task.UpdatedAt, &task.Version,
 		&task.IsDeleted, &task.DeletedAt)
-	
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, domain.ErrNotFound("task")
@@ -168,7 +168,7 @@ func (r *taskRepository) List(ctx context.Context, opts repository.TaskListOptio
 		FROM tasks t
 		%s
 		%s
-		LIMIT $%d OFFSET $%d`, 
+		LIMIT $%d OFFSET $%d`,
 		whereClause, orderClause, argIndex+1, argIndex+2)
 
 	args = append(args, pageSize, offset)
@@ -189,7 +189,7 @@ func (r *taskRepository) List(ctx context.Context, opts repository.TaskListOptio
 			&status, &priority, &task.DueDate,
 			&task.CreatedAt, &task.UpdatedAt, &task.Version,
 			&task.IsDeleted, &task.DeletedAt)
-		
+
 		if err != nil {
 			return nil, 0, fmt.Errorf("failed to scan task: %w", err)
 		}
@@ -308,7 +308,7 @@ func (r *taskRepository) AddCategories(ctx context.Context, taskID string, categ
 	if err != nil {
 		return fmt.Errorf("failed to verify task: %w", err)
 	}
-	
+
 	if currentVersion != version {
 		return domain.ErrVersionConflict("task", version, currentVersion)
 	}
@@ -351,7 +351,7 @@ func (r *taskRepository) RemoveCategories(ctx context.Context, taskID string, ca
 	if err != nil {
 		return fmt.Errorf("failed to verify task: %w", err)
 	}
-	
+
 	if currentVersion != version {
 		return domain.ErrVersionConflict("task", version, currentVersion)
 	}
@@ -404,7 +404,7 @@ func (r *taskRepository) RemoveTags(ctx context.Context, taskID string, tagIDs [
 	if err != nil {
 		return fmt.Errorf("failed to verify task: %w", err)
 	}
-	
+
 	if currentVersion != version {
 		return domain.ErrVersionConflict("task", version, currentVersion)
 	}
@@ -443,7 +443,7 @@ func (r *taskRepository) AddTags(ctx context.Context, taskID string, tagIDs []st
 	if err != nil {
 		return fmt.Errorf("failed to verify task: %w", err)
 	}
-	
+
 	if currentVersion != version {
 		return domain.ErrVersionConflict("task", version, currentVersion)
 	}
@@ -592,7 +592,6 @@ func (r *taskRepository) loadTaskRelations(ctx context.Context, task *domain.Tas
 		}
 		task.History = append(task.History, entry)
 	}
-
 
 	return nil
 }

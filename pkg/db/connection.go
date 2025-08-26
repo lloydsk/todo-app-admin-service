@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/todo-app/services/admin-service/internal/config"
 	_ "github.com/lib/pq" // PostgreSQL driver
+	"github.com/todo-app/services/admin-service/internal/config"
 )
 
 // Connection represents a database connection

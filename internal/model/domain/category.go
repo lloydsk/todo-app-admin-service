@@ -11,7 +11,6 @@ func (c *Category) IsValid() error {
 	return nil
 }
 
-
 // IsValid validates the tag data
 func (t *Tag) IsValid() error {
 	if t.Name == "" {

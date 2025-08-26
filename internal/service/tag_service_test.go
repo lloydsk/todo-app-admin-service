@@ -26,7 +26,7 @@ func (m *mockTagRepositoryForTagService) Create(ctx context.Context, tag *domain
 	if _, exists := m.nameIndex[tag.Name]; exists {
 		return domain.ErrConflict("tag with this name already exists")
 	}
-	
+
 	tag.ID = "mock-tag-" + tag.Name
 	tag.Version = 1
 	m.tags[tag.ID] = tag
@@ -50,7 +50,7 @@ func (m *mockTagRepositoryForTagService) Update(ctx context.Context, tag *domain
 	if existing.Version != tag.Version {
 		return domain.ErrVersionConflict("tag", tag.Version, existing.Version)
 	}
-	
+
 	tag.Version++
 	if existing.Name != tag.Name {
 		delete(m.nameIndex, existing.Name)
@@ -68,7 +68,7 @@ func (m *mockTagRepositoryForTagService) SoftDelete(ctx context.Context, id stri
 	if existing.Version != version {
 		return domain.ErrVersionConflict("tag", version, existing.Version)
 	}
-	
+
 	existing.IsDeleted = true
 	existing.Version++
 	delete(m.tags, id)
@@ -82,7 +82,7 @@ func (m *mockTagRepositoryForTagService) Restore(ctx context.Context, id string,
 
 func (m *mockTagRepositoryForTagService) List(ctx context.Context, opts repository.TagListOptions) ([]*domain.Tag, int64, error) {
 	tags := make([]*domain.Tag, 0, len(m.tags))
-	
+
 	// Filter by search query if provided
 	if opts.SearchQuery != "" {
 		for _, tag := range m.tags {
@@ -95,7 +95,7 @@ func (m *mockTagRepositoryForTagService) List(ctx context.Context, opts reposito
 			tags = append(tags, tag)
 		}
 	}
-	
+
 	return tags, int64(len(tags)), nil
 }
 
@@ -132,7 +132,7 @@ func (m *mockTaskRepositoryForTagService) Update(ctx context.Context, task *doma
 	if existing.Version != task.Version {
 		return domain.ErrVersionConflict("task", task.Version, existing.Version)
 	}
-	
+
 	task.Version++
 	m.tasks[task.ID] = task
 	return nil
@@ -146,7 +146,7 @@ func (m *mockTaskRepositoryForTagService) SoftDelete(ctx context.Context, id str
 	if existing.Version != version {
 		return domain.ErrVersionConflict("task", version, existing.Version)
 	}
-	
+
 	existing.IsDeleted = true
 	existing.Version++
 	delete(m.tasks, id)
@@ -261,7 +261,7 @@ func TestTagService_CreateTag(t *testing.T) {
 				t.Errorf("CreateTag() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			
+
 			if !tt.wantErr && result != nil {
 				// Verify name normalization
 				if tt.tag.Name == "  IMPORTANT  " {
@@ -333,11 +333,11 @@ func TestTagService_FindOrCreateTag(t *testing.T) {
 					t.Error("Expected result to be non-nil")
 					return
 				}
-				
+
 				if tt.expectFound && result.ID != existingTag.ID {
 					t.Error("Expected to find existing tag")
 				}
-				
+
 				if !tt.expectFound && result.CreatorID != "system" {
 					t.Error("Expected new tag to have system creator")
 				}

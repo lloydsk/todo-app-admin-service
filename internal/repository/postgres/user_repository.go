@@ -40,7 +40,7 @@ func (r *userRepository) Create(ctx context.Context, user *domain.User) error {
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
 
 	_, err := r.db.ExecContext(ctx, query,
-		user.ID, user.Name, user.Email, string(user.Role), 
+		user.ID, user.Name, user.Email, string(user.Role),
 		"dummy-hash", // In real implementation, this would be properly hashed
 		user.CreatedAt, user.UpdatedAt, user.Version)
 

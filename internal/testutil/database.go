@@ -25,7 +25,7 @@ func TestDBConfig() config.DatabaseConfig {
 // SetupTestDB creates a test database connection and sets service context
 func SetupTestDB(t *testing.T, serviceName string) *db.Connection {
 	cfg := TestDBConfig()
-	
+
 	dbConn, err := db.NewConnection(cfg)
 	if err != nil {
 		t.Fatalf("Failed to connect to test database: %v", err)
@@ -50,12 +50,12 @@ func CleanupTestDB(t *testing.T, dbConn *db.Connection) {
 // CleanupTestData removes test data from tables (useful for integration tests)
 func CleanupTestData(t *testing.T, dbConn *db.Connection, tables ...string) {
 	ctx := context.Background()
-	
+
 	// Default tables to clean if none specified
 	if len(tables) == 0 {
 		tables = []string{
 			"task_history",
-			"task_reminders", 
+			"task_reminders",
 			"task_tags",
 			"task_categories",
 			"tasks",
@@ -78,18 +78,18 @@ func CleanupTestData(t *testing.T, dbConn *db.Connection, tables ...string) {
 // Useful for test isolation
 func ExecuteInTransaction(t *testing.T, dbConn *db.Connection, fn func(*sql.Tx) error) {
 	ctx := context.Background()
-	
+
 	tx, err := dbConn.DB.BeginTx(ctx, nil)
 	if err != nil {
 		t.Fatalf("Failed to begin transaction: %v", err)
 	}
-	
+
 	defer func() {
 		if err := tx.Rollback(); err != nil && err != sql.ErrTxDone {
 			t.Logf("Warning: Failed to rollback transaction: %v", err)
 		}
 	}()
-	
+
 	if err := fn(tx); err != nil {
 		t.Fatalf("Transaction function failed: %v", err)
 	}
@@ -98,17 +98,17 @@ func ExecuteInTransaction(t *testing.T, dbConn *db.Connection, fn func(*sql.Tx) 
 // CountRecords counts records in a table with optional WHERE clause
 func CountRecords(t *testing.T, dbConn *db.Connection, table string, whereClause string, args ...interface{}) int {
 	ctx := context.Background()
-	
+
 	query := fmt.Sprintf("SELECT COUNT(*) FROM %s", table)
 	if whereClause != "" {
 		query += " WHERE " + whereClause
 	}
-	
+
 	var count int
 	err := dbConn.DB.QueryRowContext(ctx, query, args...).Scan(&count)
 	if err != nil {
 		t.Fatalf("Failed to count records in table %s: %v", table, err)
 	}
-	
+
 	return count
 }

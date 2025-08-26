@@ -16,7 +16,7 @@ func TestTaskService_CreateTask(t *testing.T) {
 	mockCategoryRepo := newMockCategoryRepository()
 	mockTagRepo := newMockTagRepository()
 	mockLogger := logger.NewLogger("debug")
-	
+
 	service := NewTaskService(mockTaskRepo, mockUserRepo, mockCategoryRepo, mockTagRepo, mockLogger)
 	ctx := context.Background()
 
@@ -81,14 +81,14 @@ func TestTaskService_ChangeTaskStatus(t *testing.T) {
 	mockCategoryRepo := newMockCategoryRepository()
 	mockTagRepo := newMockTagRepository()
 	mockLogger := logger.NewLogger("debug")
-	
+
 	service := NewTaskService(mockTaskRepo, mockUserRepo, mockCategoryRepo, mockTagRepo, mockLogger)
 	ctx := context.Background()
 
 	// Create a test task
 	testUser := testutil.TestUser()
 	mockUserRepo.Create(ctx, testUser)
-	
+
 	testTask := testutil.TestTask(testUser.ID)
 	testTask.Status = domain.TaskStatusOpen
 	mockTaskRepo.Create(ctx, testTask)
@@ -139,7 +139,7 @@ func TestTaskService_AssignTask(t *testing.T) {
 	mockCategoryRepo := newMockCategoryRepository()
 	mockTagRepo := newMockTagRepository()
 	mockLogger := logger.NewLogger("debug")
-	
+
 	service := NewTaskService(mockTaskRepo, mockUserRepo, mockCategoryRepo, mockTagRepo, mockLogger)
 	ctx := context.Background()
 
@@ -229,7 +229,7 @@ func (m *mockTagRepository) Update(ctx context.Context, tag *domain.Tag) error {
 	if existing.Version != tag.Version {
 		return domain.ErrVersionConflict("tag", tag.Version, existing.Version)
 	}
-	
+
 	tag.Version++
 	m.tags[tag.ID] = tag
 	return nil
@@ -243,7 +243,7 @@ func (m *mockTagRepository) SoftDelete(ctx context.Context, id string, version i
 	if existing.Version != version {
 		return domain.ErrVersionConflict("tag", version, existing.Version)
 	}
-	
+
 	existing.IsDeleted = true
 	existing.Version++
 	delete(m.tags, id)

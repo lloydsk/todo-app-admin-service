@@ -26,7 +26,7 @@ func (m *mockUserRepository) Create(ctx context.Context, user *domain.User) erro
 	if _, exists := m.emailIdx[user.Email]; exists {
 		return domain.ErrConflict("user with email already exists")
 	}
-	
+
 	user.ID = "mock-user-" + user.Email
 	user.Version = 1
 	m.users[user.ID] = user
@@ -58,7 +58,7 @@ func (m *mockUserRepository) Update(ctx context.Context, user *domain.User) erro
 	if existing.Version != user.Version {
 		return domain.ErrVersionConflict("user", user.Version, existing.Version)
 	}
-	
+
 	user.Version++
 	m.users[user.ID] = user
 	if existing.Email != user.Email {
@@ -76,7 +76,7 @@ func (m *mockUserRepository) SoftDelete(ctx context.Context, id string, version 
 	if existing.Version != version {
 		return domain.ErrVersionConflict("user", version, existing.Version)
 	}
-	
+
 	existing.IsDeleted = true
 	existing.Version++
 	delete(m.users, id)

@@ -9,11 +9,19 @@ import (
 
 // Config holds all configuration for the admin service
 type Config struct {
+	// Server configuration
+	Server ServerConfig `json:"server"`
+
 	// Database configuration
 	Database DatabaseConfig `json:"database"`
 
 	// Logging configuration
 	LogLevel string `json:"log_level"`
+}
+
+// ServerConfig holds server configuration
+type ServerConfig struct {
+	Port int `json:"port"`
 }
 
 // DatabaseConfig holds database connection settings
@@ -29,11 +37,14 @@ type DatabaseConfig struct {
 	ConnMaxLifetime time.Duration `json:"conn_max_lifetime"`
 }
 
-
 // LoadConfig loads configuration from environment variables with sensible defaults
 func LoadConfig() (*Config, error) {
 	config := &Config{
 		LogLevel: getEnvString("LOG_LEVEL", "info"),
+
+		Server: ServerConfig{
+			Port: getEnvInt("SERVER_PORT", 8080),
+		},
 
 		Database: DatabaseConfig{
 			Host:            getEnvString("DB_HOST", "localhost"),
