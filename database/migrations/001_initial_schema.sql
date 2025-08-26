@@ -177,19 +177,18 @@ CREATE TRIGGER update_categories_updated_at BEFORE UPDATE ON categories FOR EACH
 CREATE TRIGGER update_tags_updated_at BEFORE UPDATE ON tags FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_tasks_updated_at BEFORE UPDATE ON tasks FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- Create a function to handle optimistic locking
-CREATE OR REPLACE FUNCTION check_version()
+-- Create a function to handle optimistic locking and auto-increment version
+CREATE OR REPLACE FUNCTION handle_version_and_locking()
 RETURNS TRIGGER AS $$
 BEGIN
-    IF OLD.version != NEW.version - 1 THEN
-        RAISE EXCEPTION 'Optimistic lock error: version mismatch. Expected %, got %', OLD.version + 1, NEW.version;
-    END IF;
+    -- Auto-increment version for optimistic locking
+    NEW.version = OLD.version + 1;
     RETURN NEW;
 END;
 $$ language 'plpgsql';
 
--- Apply version checking to tables with version columns
-CREATE TRIGGER check_users_version BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION check_version();
-CREATE TRIGGER check_categories_version BEFORE UPDATE ON categories FOR EACH ROW EXECUTE FUNCTION check_version();
-CREATE TRIGGER check_tags_version BEFORE UPDATE ON tags FOR EACH ROW EXECUTE FUNCTION check_version();
-CREATE TRIGGER check_tasks_version BEFORE UPDATE ON tasks FOR EACH ROW EXECUTE FUNCTION check_version();
+-- Apply version handling to tables with version columns
+CREATE TRIGGER handle_users_version BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION handle_version_and_locking();
+CREATE TRIGGER handle_categories_version BEFORE UPDATE ON categories FOR EACH ROW EXECUTE FUNCTION handle_version_and_locking();
+CREATE TRIGGER handle_tags_version BEFORE UPDATE ON tags FOR EACH ROW EXECUTE FUNCTION handle_version_and_locking();
+CREATE TRIGGER handle_tasks_version BEFORE UPDATE ON tasks FOR EACH ROW EXECUTE FUNCTION handle_version_and_locking();
