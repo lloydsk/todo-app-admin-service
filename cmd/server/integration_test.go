@@ -68,12 +68,16 @@ func TestRealServerStartup(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	_, err = client.ListUsers(ctx, &todov1.ListUsersRequest{})
-	if err == nil {
-		t.Error("Expected unimplemented error, got nil")
+	resp, err := client.ListUsers(ctx, &todov1.ListUsersRequest{})
+	if err != nil {
+		t.Fatalf("Unexpected error calling ListUsers: %v", err)
 	}
 
-	t.Logf("Successfully connected to server and received expected error: %v", err)
+	if resp == nil {
+		t.Error("Expected response but got nil")
+	}
+
+	t.Logf("Successfully connected to server and received response with %d users", len(resp.Users))
 
 	// Cleanup environment variables
 	os.Unsetenv("SERVER_PORT")
