@@ -46,7 +46,7 @@ func setupTaskTestDB(t *testing.T) (*db.Connection, string) {
 
 	err = userRepo.Create(ctx, testUser)
 	if err != nil {
-		t.Skipf("Failed to create test user for tasks: %v", err)
+		t.Fatalf("Failed to create test user for tasks: %v", err)
 	}
 
 	return dbConn, testUser.ID
