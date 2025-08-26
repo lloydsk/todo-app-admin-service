@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	todov1 "github.com/todo-app/services/admin-service/proto/gen/go/todo/v1"
+	todov1 "github.com/todo-app/todo-app-proto/gen/go/todo/v1"
 )
 
 func TestRealServerStartup(t *testing.T) {

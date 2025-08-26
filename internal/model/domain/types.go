@@ -3,7 +3,7 @@ package domain
 import (
 	"time"
 
-	pb "github.com/todo-app/services/admin-service/proto/gen/go/todo/v1"
+	pb "github.com/todo-app/todo-app-proto/gen/go/todo/v1"
 )
 
 // Category represents a task category
