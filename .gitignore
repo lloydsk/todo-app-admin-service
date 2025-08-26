@@ -57,6 +57,10 @@ dist/
 build/
 bin/
 
+# Built binaries (from go build)
+server
+admin-service
+
 # Temporary files
 tmp/
 temp/
