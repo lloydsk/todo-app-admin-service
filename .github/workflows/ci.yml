@@ -54,6 +54,27 @@ jobs:
     - name: Run unit tests
       run: go test -v -short ./...
 
+    - name: Set up database schema and seed data
+      env:
+        DB_HOST: localhost
+        DB_PORT: 5432
+        DB_NAME: todo_app
+        DB_USER: postgres
+        DB_PASSWORD: postgres
+      run: |
+        # Wait for PostgreSQL to be fully ready
+        for i in {1..30}; do
+          if PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -c '\q' 2>/dev/null; then
+            echo "PostgreSQL is ready"
+            break
+          fi
+          echo "Waiting for PostgreSQL... ($i/30)"
+          sleep 2
+        done
+        
+        # Run database setup
+        ./scripts/setup-db.sh
+
     - name: Run integration tests
       env:
         DB_HOST: localhost

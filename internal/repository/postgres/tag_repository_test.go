@@ -36,18 +36,6 @@ func setupTagTestDB(t *testing.T) (*db.Connection, string) {
 
 	dbConn.SetServiceContext(ctx, "tag-integration-test")
 
-	// Check if required tables exist
-	var tableExists bool
-	err = dbConn.DB.QueryRowContext(ctx, "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'users')").Scan(&tableExists)
-	if err != nil || !tableExists {
-		t.Skipf("Required database tables not found - skipping integration test. Error: %v, table exists: %v", err, tableExists)
-	}
-
-	err = dbConn.DB.QueryRowContext(ctx, "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'tags')").Scan(&tableExists)
-	if err != nil || !tableExists {
-		t.Skipf("Required database tables not found - skipping integration test. Error: %v, table exists: %v", err, tableExists)
-	}
-
 	// Create a test user for the foreign key constraint
 	userRepo := NewUserRepository(dbConn.DB)
 	testUser := &domain.User{
