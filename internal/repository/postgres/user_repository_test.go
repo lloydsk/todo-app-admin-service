@@ -35,14 +35,14 @@ func setupTestDB(t *testing.T) *db.Connection {
 	}
 
 	dbConn.SetServiceContext(ctx, "integration-test")
-	
+
 	// Check if required tables exist
 	var tableExists bool
 	err = dbConn.DB.QueryRowContext(ctx, "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'users')").Scan(&tableExists)
 	if err != nil || !tableExists {
 		t.Skipf("Required database tables not found - skipping integration test. Error: %v, table exists: %v", err, tableExists)
 	}
-	
+
 	return dbConn
 }
 
