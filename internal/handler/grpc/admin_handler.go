@@ -36,10 +36,14 @@ func (h *AdminHandler) ListUsers(ctx context.Context, req *todov1.ListUsersReque
 
 	// Convert pagination info
 	opts := repository.ListOptions{
-		Page:           int(req.GetPageInfo().GetPage()),
-		PageSize:       int(req.GetPageInfo().GetPageSize()),
+		Page:           0, // Default to first page for now
+		PageSize:       req.GetPageInfo().GetPageSize(),
 		SearchQuery:    req.GetSearchQuery(),
 		IncludeDeleted: req.GetIncludeDeleted(),
+	}
+
+	if opts.PageSize == 0 {
+		opts.PageSize = 50 // Default page size
 	}
 
 	// Get users from service
@@ -59,10 +63,8 @@ func (h *AdminHandler) ListUsers(ctx context.Context, req *todov1.ListUsersReque
 	response := &todov1.ListUsersResponse{
 		Users: pbUsers,
 		PageResponse: &todov1.PageResponse{
-			Page:       int32(opts.Page),
-			PageSize:   int32(opts.PageSize),
-			TotalCount: total,
-			HasMore:    total > int64((opts.Page+1)*opts.PageSize),
+			NextPageToken: "", // TODO: Implement token-based pagination
+			TotalCount:    int32(total),
 		},
 	}
 
@@ -117,7 +119,7 @@ func (h *AdminHandler) CreateTask(ctx context.Context, req *todov1.CreateTaskReq
 		Title:       req.GetTitle(),
 		Description: req.GetDescription(),
 		AssigneeID:  req.GetAssigneeId(),
-		Status:      domain.TaskStatusOpen,    // Default status
+		Status:      domain.TaskStatusOpen,     // Default status
 		Priority:    domain.TaskPriorityMedium, // Default priority
 	}
 

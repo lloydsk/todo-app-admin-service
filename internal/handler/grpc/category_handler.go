@@ -78,9 +78,13 @@ func (h *CategoryHandler) ListCategories(ctx context.Context, req *todov1.ListCa
 
 	// Convert pagination info
 	opts := repository.ListOptions{
-		Page:           int(req.GetPageInfo().GetPage()),
-		PageSize:       int(req.GetPageInfo().GetPageSize()),
+		Page:           0, // Default to first page for now
+		PageSize:       req.GetPageInfo().GetPageSize(),
 		IncludeDeleted: req.GetIncludeDeleted(),
+	}
+
+	if opts.PageSize == 0 {
+		opts.PageSize = 50 // Default page size
 	}
 
 	// Get categories from service
@@ -112,10 +116,8 @@ func (h *CategoryHandler) ListCategories(ctx context.Context, req *todov1.ListCa
 	response := &todov1.ListCategoriesResponse{
 		Categories: pbCategories,
 		PageResponse: &todov1.PageResponse{
-			Page:       int32(opts.Page),
-			PageSize:   int32(opts.PageSize),
-			TotalCount: total,
-			HasMore:    total > int64((opts.Page+1)*opts.PageSize),
+			NextPageToken: "", // TODO: Implement token-based pagination
+			TotalCount:    int32(total),
 		},
 	}
 
@@ -127,14 +129,107 @@ func (h *CategoryHandler) ListCategories(ctx context.Context, req *todov1.ListCa
 func (h *CategoryHandler) UpdateCategory(ctx context.Context, req *todov1.UpdateCategoryRequest) (*todov1.UpdateCategoryResponse, error) {
 	h.logger.Info(ctx, "Updating category via gRPC", "category_id", req.GetCategoryId())
 
-	// TODO: Implement category update
-	return nil, status.Error(codes.Unimplemented, "UpdateCategory not yet implemented")
+	// Validate request
+	if req.GetCategoryId() == "" {
+		return nil, status.Error(codes.InvalidArgument, "category_id is required")
+	}
+	if req.GetVersion() == 0 {
+		return nil, status.Error(codes.InvalidArgument, "version is required for optimistic locking")
+	}
+
+	// Get current category to get current data
+	currentCategory, err := h.categoryService.GetCategoryByID(ctx, req.GetCategoryId())
+	if err != nil {
+		if domain.IsNotFoundError(err) {
+			return nil, status.Errorf(codes.NotFound, "category not found: %s", req.GetCategoryId())
+		}
+		h.logger.Error(ctx, "Failed to get current category", "category_id", req.GetCategoryId(), "error", err)
+		return nil, status.Errorf(codes.Internal, "failed to get current category: %v", err)
+	}
+
+	// Check version for optimistic locking
+	if currentCategory.Version != req.GetVersion() {
+		return nil, status.Errorf(codes.FailedPrecondition, "category version mismatch: expected %d, got %d",
+			currentCategory.Version, req.GetVersion())
+	}
+
+	// Update fields that are provided
+	if req.GetName() != "" {
+		currentCategory.Name = req.GetName()
+	}
+	if req.GetDescription() != "" {
+		currentCategory.Description = req.GetDescription()
+	}
+	if req.GetColor() != "" {
+		currentCategory.Color = req.GetColor()
+	}
+
+	// Update parent ID (can be set to empty to remove parent)
+	if req.GetParentId() != "" {
+		currentCategory.ParentID = &req.ParentId
+	} else {
+		currentCategory.ParentID = nil
+	}
+
+	// Update public flag
+	currentCategory.IsPublic = req.GetIsPublic()
+
+	// Update category via service
+	updatedCategory, err := h.categoryService.UpdateCategory(ctx, currentCategory)
+	if err != nil {
+		if domain.IsVersionConflictError(err) {
+			return nil, status.Error(codes.FailedPrecondition, "category was modified by another request")
+		}
+		h.logger.Error(ctx, "Failed to update category", "category_id", req.GetCategoryId(), "error", err)
+		return nil, status.Errorf(codes.Internal, "failed to update category: %v", err)
+	}
+
+	// Build response
+	response := &todov1.UpdateCategoryResponse{
+		Category: updatedCategory.ToProtobuf(),
+	}
+
+	h.logger.Info(ctx, "Updated category successfully", "category_id", req.GetCategoryId())
+	return response, nil
 }
 
 // DeleteCategory deletes a category
 func (h *CategoryHandler) DeleteCategory(ctx context.Context, req *todov1.DeleteCategoryRequest) (*todov1.DeleteCategoryResponse, error) {
 	h.logger.Info(ctx, "Deleting category via gRPC", "category_id", req.GetCategoryId())
 
-	// TODO: Implement category deletion
-	return nil, status.Error(codes.Unimplemented, "DeleteCategory not yet implemented")
+	// Validate request
+	if req.GetCategoryId() == "" {
+		return nil, status.Error(codes.InvalidArgument, "category_id is required")
+	}
+	if req.GetVersion() == 0 {
+		return nil, status.Error(codes.InvalidArgument, "version is required for optimistic locking")
+	}
+
+	// Validate category usage before deletion
+	err := h.categoryService.ValidateCategoryUsage(ctx, req.GetCategoryId())
+	if err != nil {
+		h.logger.Error(ctx, "Category validation failed", "category_id", req.GetCategoryId(), "error", err)
+		return nil, status.Errorf(codes.FailedPrecondition, "cannot delete category: %v", err)
+	}
+
+	// Delete category via service (soft delete)
+	err = h.categoryService.DeleteCategory(ctx, req.GetCategoryId(), req.GetVersion())
+	if err != nil {
+		if domain.IsNotFoundError(err) {
+			return nil, status.Errorf(codes.NotFound, "category not found: %s", req.GetCategoryId())
+		}
+		if domain.IsVersionConflictError(err) {
+			return nil, status.Error(codes.FailedPrecondition, "category was modified by another request")
+		}
+		h.logger.Error(ctx, "Failed to delete category", "category_id", req.GetCategoryId(), "error", err)
+		return nil, status.Errorf(codes.Internal, "failed to delete category: %v", err)
+	}
+
+	// Build response
+	response := &todov1.DeleteCategoryResponse{
+		Success: true,
+	}
+
+	h.logger.Info(ctx, "Deleted category successfully", "category_id", req.GetCategoryId())
+	return response, nil
 }
