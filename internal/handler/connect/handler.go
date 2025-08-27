@@ -24,14 +24,14 @@ func NewHandler(services *service.Services, logger logger.Logger) *Handler {
 
 // RegisterServices registers all ConnectRPC services with the HTTP mux
 func (h *Handler) RegisterServices(mux *http.ServeMux) {
-	// TODO: Implement AdminService with all required task management methods
-	// adminHandler := NewAdminHandler(h.services, h.logger)
-	// path, handler := v1connect.NewAdminServiceHandler(adminHandler)
-	// mux.Handle(path, handler)
+	// Register full admin service with all task management methods
+	adminHandler := NewAdminHandler(h.services, h.logger)
+	path, handler := v1connect.NewAdminServiceHandler(adminHandler)
+	mux.Handle(path, handler)
 
 	// Register category service
 	categoryHandler := NewCategoryHandler(h.services.Category, h.logger)
-	path, handler := v1connect.NewCategoryServiceHandler(categoryHandler)
+	path, handler = v1connect.NewCategoryServiceHandler(categoryHandler)
 	mux.Handle(path, handler)
 
 	// Register tag service

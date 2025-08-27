@@ -70,6 +70,12 @@ func main() {
 	// Initialize HTTP mux for ConnectRPC (supports both gRPC and HTTP/JSON)
 	mux := http.NewServeMux()
 
+	// Add a simple health check endpoint for debugging
+	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("OK"))
+	})
+
 	// Register ConnectRPC handlers
 	connectHandler := connecthandler.NewHandler(services, log)
 	connectHandler.RegisterServices(mux)
