@@ -3,6 +3,9 @@ package domain
 import (
 	"encoding/json"
 	"time"
+
+	pb "github.com/lloydsk/todo-app-proto/gen/go/todo/v1"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // TaskHistoryAction represents different types of task actions
@@ -67,6 +70,18 @@ func (th *TaskHistory) SetDetails(details *TaskHistoryDetails) error {
 
 	th.Details = data
 	return nil
+}
+
+// ToProtobuf converts TaskHistory to protobuf TaskHistoryEntry
+func (th *TaskHistory) ToProtobuf() *pb.TaskHistoryEntry {
+	return &pb.TaskHistoryEntry{
+		Id:        th.ID,
+		TaskId:    th.TaskID,
+		Action:    string(th.Action),
+		ActorId:   th.ActorID,
+		Timestamp: timestamppb.New(th.Timestamp),
+		Details:   string(th.Details),
+	}
 }
 
 // Validate validates task history data

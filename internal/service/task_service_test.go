@@ -108,7 +108,7 @@ func TestTaskService_ChangeTaskStatus(t *testing.T) {
 			wantErr:   false,
 		},
 		{
-			name:      "valid status change - open to cancelled",
+			name:      "valid status change - open to canceled",
 			taskID:    testTask.ID,
 			newStatus: domain.TaskStatusCancelled,
 			version:   testTask.Version + 1,

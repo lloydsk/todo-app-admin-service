@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	todov1 "github.com/todo-app/services/admin-service/proto/gen/go/todo/v1"
+	todov1 "github.com/lloydsk/todo-app-proto/gen/go/todo/v1"
 )
 
 func TestRealServerStartup(t *testing.T) {
@@ -49,15 +49,13 @@ func TestRealServerStartup(t *testing.T) {
 
 	// Create client and test connection
 	address := fmt.Sprintf("localhost:%d", port)
-	conn, err := grpc.DialContext(
-		context.Background(),
-		address,
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithBlock(),
-		grpc.WithTimeout(5*time.Second),
-	)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	conn, err := grpc.NewClient(address,
+		grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		t.Fatalf("Failed to connect to server: %v", err)
+		t.Fatalf("Failed to create gRPC client: %v", err)
 	}
 	defer conn.Close()
 
@@ -65,15 +63,17 @@ func TestRealServerStartup(t *testing.T) {
 	client := todov1.NewAdminServiceClient(conn)
 
 	// Test a simple call
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	_, err = client.ListUsers(ctx, &todov1.ListUsersRequest{})
-	if err == nil {
-		t.Error("Expected unimplemented error, got nil")
+	resp, err := client.ListUsers(ctx, &todov1.ListUsersRequest{})
+	if err != nil {
+		t.Fatalf("Unexpected error calling ListUsers: %v", err)
 	}
 
-	t.Logf("Successfully connected to server and received expected error: %v", err)
+	if resp == nil {
+		t.Error("Expected response but got nil")
+		return
+	}
+
+	t.Logf("Successfully connected to server and received response with %d users", len(resp.Users))
 
 	// Cleanup environment variables
 	os.Unsetenv("SERVER_PORT")

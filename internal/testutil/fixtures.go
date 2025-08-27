@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+
 	"github.com/todo-app/services/admin-service/internal/model/domain"
 )
 

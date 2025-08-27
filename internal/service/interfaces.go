@@ -52,7 +52,7 @@ type CategoryService interface {
 	UpdateCategory(ctx context.Context, category *domain.Category) (*domain.Category, error)
 	DeleteCategory(ctx context.Context, id string, version int64) error
 	RestoreCategory(ctx context.Context, id string, version int64) (*domain.Category, error)
-	ListCategories(ctx context.Context, opts repository.ListOptions) ([]*domain.Category, int64, error)
+	ListCategories(ctx context.Context, opts repository.CategoryListOptions) ([]*domain.Category, int64, error)
 
 	// Business logic methods
 	ValidateCategoryUsage(ctx context.Context, categoryID string) error

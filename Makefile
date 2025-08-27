@@ -41,7 +41,8 @@ help:
 	@echo "  $(GREEN)build$(NC)         Build all packages"
 	@echo "  $(GREEN)build-test$(NC)    Build and run build verification"
 	@echo "  $(GREEN)lint$(NC)          Run code linting (if available)"
-	@echo "  $(GREEN)format$(NC)        Format Go code"
+	@echo "  $(GREEN)format$(NC)        Format Go code with gofmt and goimports"
+	@echo "  $(GREEN)fmt-check$(NC)     Check code formatting without modifying files"
 	@echo "  $(GREEN)tidy$(NC)          Clean up go.mod dependencies"
 	@echo ""
 	@echo "$(BOLD)Development Workflow:$(NC)"
@@ -89,7 +90,7 @@ test-performance:
 	@$(TEST_RUNNER_SCRIPT) performance
 
 # Development Targets
-.PHONY: build build-test lint format tidy
+.PHONY: build build-test lint format fmt-check tidy
 build:
 	@echo "$(CYAN)🔨 Building all packages...$(NC)"
 	@go build ./...
@@ -110,8 +111,31 @@ lint:
 
 format:
 	@echo "$(CYAN)📝 Formatting Go code...$(NC)"
-	@go fmt ./...
+	@gofmt -w .
+	@if command -v goimports >/dev/null 2>&1; then \
+		echo "$(CYAN)📦 Fixing imports...$(NC)"; \
+		goimports -local github.com/todo-app/services/admin-service -w .; \
+	else \
+		echo "$(YELLOW)⚠️  goimports not installed, run: go install golang.org/x/tools/cmd/goimports@latest$(NC)"; \
+		go fmt ./...; \
+	fi
 	@echo "$(GREEN)✅ Code formatted$(NC)"
+
+fmt-check:
+	@echo "$(CYAN)🔍 Checking code formatting...$(NC)"
+	@if [ -n "$$(gofmt -l .)" ]; then \
+		echo "$(RED)❌ The following files are not formatted:$(NC)"; \
+		gofmt -l .; \
+		exit 1; \
+	fi
+	@if command -v goimports >/dev/null 2>&1; then \
+		if [ -n "$$(goimports -local github.com/todo-app/services/admin-service -l .)" ]; then \
+			echo "$(RED)❌ The following files have import issues:$(NC)"; \
+			goimports -local github.com/todo-app/services/admin-service -l .; \
+			exit 1; \
+		fi \
+	fi
+	@echo "$(GREEN)✅ All files are properly formatted$(NC)"
 
 tidy:
 	@echo "$(CYAN)🧹 Cleaning up dependencies...$(NC)"
@@ -145,6 +169,10 @@ install-deps:
 	@if ! command -v golangci-lint >/dev/null 2>&1; then \
 		echo "Installing golangci-lint..."; \
 		curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $$(go env GOPATH)/bin v1.55.2; \
+	fi
+	@if ! command -v goimports >/dev/null 2>&1; then \
+		echo "Installing goimports..."; \
+		go install golang.org/x/tools/cmd/goimports@latest; \
 	fi
 	@go mod download
 	@echo "$(GREEN)✅ Dependencies installed$(NC)"

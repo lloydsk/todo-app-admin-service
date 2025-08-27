@@ -4,6 +4,16 @@ import (
 	"context"
 	"testing"
 	"time"
+
+	"github.com/todo-app/services/admin-service/internal/auth"
+)
+
+// Context key types to avoid collisions
+type contextKey string
+
+const (
+	userIDKey      contextKey = "user_id"
+	serviceNameKey contextKey = "service_name"
 )
 
 // TestContext creates a test context with timeout
@@ -17,7 +27,7 @@ func TestContext(t *testing.T, timeout ...time.Duration) context.Context {
 
 	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 
-	// Ensure context is cancelled when test completes
+	// Ensure context is canceled when test completes
 	t.Cleanup(func() {
 		cancel()
 	})
@@ -32,7 +42,7 @@ func TestContextWithValues(t *testing.T, values map[string]interface{}, timeout 
 	ctx := TestContext(t, timeout...)
 
 	for key, value := range values {
-		ctx = context.WithValue(ctx, key, value)
+		ctx = context.WithValue(ctx, contextKey(key), value)
 	}
 
 	return ctx
@@ -43,7 +53,7 @@ func TestContextWithUserID(t *testing.T, userID string, timeout ...time.Duration
 	t.Helper()
 
 	ctx := TestContext(t, timeout...)
-	return context.WithValue(ctx, "user_id", userID)
+	return auth.WithUserID(ctx, userID)
 }
 
 // TestContextWithServiceName creates a test context with service name
@@ -51,5 +61,5 @@ func TestContextWithServiceName(t *testing.T, serviceName string, timeout ...tim
 	t.Helper()
 
 	ctx := TestContext(t, timeout...)
-	return context.WithValue(ctx, "service_name", serviceName)
+	return context.WithValue(ctx, serviceNameKey, serviceName)
 }

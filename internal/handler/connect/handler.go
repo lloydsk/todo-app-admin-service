@@ -1,20 +1,21 @@
-package grpc
+package connect
 
 import (
-	todov1 "github.com/lloydsk/todo-app-proto/gen/go/todo/v1"
-	"google.golang.org/grpc"
+	"net/http"
+
+	"github.com/lloydsk/todo-app-proto/gen/go/todo/v1/v1connect"
 
 	"github.com/todo-app/services/admin-service/internal/service"
 	"github.com/todo-app/services/admin-service/pkg/logger"
 )
 
-// Handler holds the gRPC handlers and their dependencies
+// Handler holds the ConnectRPC handlers and their dependencies
 type Handler struct {
 	services *service.Services
 	logger   logger.Logger
 }
 
-// NewHandler creates a new gRPC handler
+// NewHandler creates a new ConnectRPC handler
 func NewHandler(services *service.Services, logger logger.Logger) *Handler {
 	return &Handler{
 		services: services,
@@ -22,19 +23,22 @@ func NewHandler(services *service.Services, logger logger.Logger) *Handler {
 	}
 }
 
-// RegisterServices registers all gRPC services with the server
-func (h *Handler) RegisterServices(server *grpc.Server) {
-	// Register admin service (for web interface)
+// RegisterServices registers all ConnectRPC services with the HTTP mux
+func (h *Handler) RegisterServices(mux *http.ServeMux) {
+	// Register full admin service with all task management methods
 	adminHandler := NewAdminHandler(h.services, h.logger)
-	todov1.RegisterAdminServiceServer(server, adminHandler)
+	path, handler := v1connect.NewAdminServiceHandler(adminHandler)
+	mux.Handle(path, handler)
 
 	// Register category service
 	categoryHandler := NewCategoryHandler(h.services.Category, h.logger)
-	todov1.RegisterCategoryServiceServer(server, categoryHandler)
+	path, handler = v1connect.NewCategoryServiceHandler(categoryHandler)
+	mux.Handle(path, handler)
 
 	// Register tag service
 	tagHandler := NewTagHandler(h.services.Tag, h.logger)
-	todov1.RegisterTagServiceServer(server, tagHandler)
+	path, handler = v1connect.NewTagServiceHandler(tagHandler)
+	mux.Handle(path, handler)
 
 	// Note: UserService is for mobile interface - implement separately if needed
 }

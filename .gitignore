@@ -58,8 +58,10 @@ build/
 bin/
 
 # Built binaries (from go build)
-server
-admin-service
+/server
+/admin-service
+cmd/server/server
+cmd/server/admin-service
 
 # Temporary files
 tmp/

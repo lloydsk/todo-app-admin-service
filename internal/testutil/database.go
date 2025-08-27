@@ -36,7 +36,10 @@ func SetupTestDB(t *testing.T, serviceName string) *db.Connection {
 		t.Fatalf("Test database health check failed: %v", err)
 	}
 
-	dbConn.SetServiceContext(ctx, serviceName)
+	if err := dbConn.SetServiceContext(ctx, serviceName); err != nil {
+		// Log warning but don't fail test setup for service context issues
+		t.Logf("Warning: failed to set service context: %v", err)
+	}
 	return dbConn
 }
 

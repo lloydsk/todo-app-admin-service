@@ -164,15 +164,10 @@ func (s *categoryService) RestoreCategory(ctx context.Context, id string, versio
 	return category, nil
 }
 
-func (s *categoryService) ListCategories(ctx context.Context, opts repository.ListOptions) ([]*domain.Category, int64, error) {
-	s.logger.Debug(ctx, "Listing categories", "page", opts.Page, "page_size", opts.PageSize)
+func (s *categoryService) ListCategories(ctx context.Context, opts repository.CategoryListOptions) ([]*domain.Category, int64, error) {
+	s.logger.Debug(ctx, "Listing categories", "page", opts.Page, "page_size", opts.PageSize, "public_only", opts.PublicOnly)
 
-	// Convert to CategoryListOptions - this will be implemented when we add specific filtering
-	categoryOpts := repository.CategoryListOptions{
-		ListOptions: opts,
-	}
-
-	categories, total, err := s.categoryRepo.List(ctx, categoryOpts)
+	categories, total, err := s.categoryRepo.List(ctx, opts)
 	if err != nil {
 		s.logger.Error(ctx, "Failed to list categories", "error", err)
 		return nil, 0, fmt.Errorf("failed to list categories: %w", err)
