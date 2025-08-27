@@ -6,11 +6,11 @@ import (
 
 	"connectrpc.com/connect"
 
+	todov1 "github.com/lloydsk/todo-app-proto/gen/go/todo/v1"
 	"github.com/todo-app/services/admin-service/internal/model/domain"
 	"github.com/todo-app/services/admin-service/internal/repository"
 	"github.com/todo-app/services/admin-service/internal/service"
 	"github.com/todo-app/services/admin-service/pkg/logger"
-	todov1 "github.com/lloydsk/todo-app-proto/gen/go/todo/v1"
 )
 
 // AdminHandler implements the ConnectRPC AdminService
@@ -74,7 +74,7 @@ func (h *AdminHandler) GetUser(ctx context.Context, req *connect.Request[todov1.
 	h.logger.Info(ctx, "Getting user via ConnectRPC", "user_id", userID)
 
 	if userID == "" {
-		return nil, connect.NewError(connect.CodeInvalidArgument, 
+		return nil, connect.NewError(connect.CodeInvalidArgument,
 			fmt.Errorf("user_id is required"))
 	}
 
@@ -82,7 +82,7 @@ func (h *AdminHandler) GetUser(ctx context.Context, req *connect.Request[todov1.
 	if err != nil {
 		h.logger.Error(ctx, "Failed to get user", "user_id", userID, "error", err)
 		if domain.IsNotFoundError(err) {
-			return nil, connect.NewError(connect.CodeNotFound, 
+			return nil, connect.NewError(connect.CodeNotFound,
 				fmt.Errorf("user not found"))
 		}
 		return nil, connect.NewError(connect.CodeInternal, err)

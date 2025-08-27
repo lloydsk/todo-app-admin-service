@@ -6,12 +6,12 @@ import (
 
 	"connectrpc.com/connect"
 
+	todov1 "github.com/lloydsk/todo-app-proto/gen/go/todo/v1"
 	"github.com/todo-app/services/admin-service/internal/auth"
 	"github.com/todo-app/services/admin-service/internal/model/domain"
 	"github.com/todo-app/services/admin-service/internal/repository"
 	"github.com/todo-app/services/admin-service/internal/service"
 	"github.com/todo-app/services/admin-service/pkg/logger"
-	todov1 "github.com/lloydsk/todo-app-proto/gen/go/todo/v1"
 )
 
 // TagHandler implements the ConnectRPC TagService
@@ -68,7 +68,6 @@ func (h *TagHandler) CreateTag(ctx context.Context, req *connect.Request[todov1.
 
 	return connect.NewResponse(response), nil
 }
-
 
 // ListTags lists tags with pagination
 func (h *TagHandler) ListTags(ctx context.Context, req *connect.Request[todov1.ListTagsRequest]) (*connect.Response[todov1.ListTagsResponse], error) {

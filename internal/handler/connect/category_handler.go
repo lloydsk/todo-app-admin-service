@@ -6,12 +6,12 @@ import (
 
 	"connectrpc.com/connect"
 
+	todov1 "github.com/lloydsk/todo-app-proto/gen/go/todo/v1"
 	"github.com/todo-app/services/admin-service/internal/auth"
 	"github.com/todo-app/services/admin-service/internal/model/domain"
 	"github.com/todo-app/services/admin-service/internal/repository"
 	"github.com/todo-app/services/admin-service/internal/service"
 	"github.com/todo-app/services/admin-service/pkg/logger"
-	todov1 "github.com/lloydsk/todo-app-proto/gen/go/todo/v1"
 )
 
 // CategoryHandler implements the ConnectRPC CategoryService
@@ -76,7 +76,6 @@ func (h *CategoryHandler) CreateCategory(ctx context.Context, req *connect.Reque
 
 	return connect.NewResponse(response), nil
 }
-
 
 // ListCategories lists categories with pagination
 func (h *CategoryHandler) ListCategories(ctx context.Context, req *connect.Request[todov1.ListCategoriesRequest]) (*connect.Response[todov1.ListCategoriesResponse], error) {

@@ -51,7 +51,9 @@ func main() {
 	}
 
 	// Set service context
-	dbConn.SetServiceContext(context.Background(), "admin-service")
+	if err := dbConn.SetServiceContext(context.Background(), "admin-service"); err != nil {
+		log.Warn(context.Background(), "Failed to set service context", "error", err)
+	}
 
 	// Initialize repositories
 	userRepo := postgres.NewUserRepository(dbConn.DB)
@@ -73,7 +75,9 @@ func main() {
 	// Add a simple health check endpoint for debugging
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("OK"))
+		if _, err := w.Write([]byte("OK")); err != nil {
+			log.Error(r.Context(), "Failed to write health check response", "error", err)
+		}
 	})
 
 	// Register ConnectRPC handlers
@@ -82,7 +86,7 @@ func main() {
 
 	// Create HTTP server that can handle both ConnectRPC protocols (gRPC and HTTP/JSON)
 	httpServer := &http.Server{
-		Addr: fmt.Sprintf(":%d", cfg.Server.Port),
+		Addr:    fmt.Sprintf(":%d", cfg.Server.Port),
 		Handler: h2c.NewHandler(mux, &http2.Server{}),
 	}
 
@@ -134,4 +138,3 @@ func main() {
 
 	log.Info(context.Background(), "Server stopped")
 }
-
