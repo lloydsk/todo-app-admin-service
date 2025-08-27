@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 	"time"
+
+	"github.com/todo-app/services/admin-service/internal/auth"
 )
 
 // Context key types to avoid collisions
@@ -51,7 +53,7 @@ func TestContextWithUserID(t *testing.T, userID string, timeout ...time.Duration
 	t.Helper()
 
 	ctx := TestContext(t, timeout...)
-	return context.WithValue(ctx, userIDKey, userID)
+	return auth.WithUserID(ctx, userID)
 }
 
 // TestContextWithServiceName creates a test context with service name

@@ -9,6 +9,7 @@ import (
 
 	todov1 "github.com/lloydsk/todo-app-proto/gen/go/todo/v1"
 
+	"github.com/todo-app/services/admin-service/internal/auth"
 	"github.com/todo-app/services/admin-service/internal/model/domain"
 	"github.com/todo-app/services/admin-service/internal/repository"
 	"github.com/todo-app/services/admin-service/pkg/logger"
@@ -98,7 +99,7 @@ func setupCategoryHandler(t *testing.T) (*CategoryHandler, *mockCategoryService)
 
 func TestCategoryHandler_CreateCategory(t *testing.T) {
 	handler, categoryService := setupCategoryHandler(t)
-	ctx := context.Background()
+	ctx := auth.WithUserID(context.Background(), "test-user-123")
 
 	tests := []struct {
 		name       string
@@ -186,7 +187,7 @@ func TestCategoryHandler_CreateCategory(t *testing.T) {
 
 func TestCategoryHandler_ListCategories(t *testing.T) {
 	handler, categoryService := setupCategoryHandler(t)
-	ctx := context.Background()
+	ctx := auth.WithUserID(context.Background(), "test-user-123")
 
 	// Add test categories
 	publicCategory := &domain.Category{
@@ -261,7 +262,7 @@ func TestCategoryHandler_ListCategories(t *testing.T) {
 
 func TestCategoryHandler_UpdateCategory(t *testing.T) {
 	handler, categoryService := setupCategoryHandler(t)
-	ctx := context.Background()
+	ctx := auth.WithUserID(context.Background(), "test-user-123")
 
 	// Add a test category
 	testCategory := &domain.Category{
@@ -368,7 +369,7 @@ func TestCategoryHandler_UpdateCategory(t *testing.T) {
 
 func TestCategoryHandler_DeleteCategory(t *testing.T) {
 	handler, categoryService := setupCategoryHandler(t)
-	ctx := context.Background()
+	ctx := auth.WithUserID(context.Background(), "test-user-123")
 
 	// Add a test category
 	testCategory := &domain.Category{

@@ -9,6 +9,7 @@ import (
 
 	todov1 "github.com/lloydsk/todo-app-proto/gen/go/todo/v1"
 
+	"github.com/todo-app/services/admin-service/internal/auth"
 	"github.com/todo-app/services/admin-service/internal/model/domain"
 	"github.com/todo-app/services/admin-service/internal/repository"
 	"github.com/todo-app/services/admin-service/internal/service"
@@ -185,7 +186,7 @@ func TestAdminHandler_ListUsers(t *testing.T) {
 
 	logger := logger.NewLogger("debug")
 	handler := NewAdminHandler(services, logger)
-	ctx := context.Background()
+	ctx := auth.WithUserID(context.Background(), "test-user-123")
 
 	// Add a test user
 	testUser := &domain.User{
@@ -261,7 +262,7 @@ func TestAdminHandler_GetUser(t *testing.T) {
 
 	logger := logger.NewLogger("debug")
 	handler := NewAdminHandler(services, logger)
-	ctx := context.Background()
+	ctx := auth.WithUserID(context.Background(), "test-user-123")
 
 	// Add a test user
 	testUser := &domain.User{
@@ -353,7 +354,7 @@ func TestAdminHandler_CreateTask(t *testing.T) {
 
 	logger := logger.NewLogger("debug")
 	handler := NewAdminHandler(services, logger)
-	ctx := context.Background()
+	ctx := auth.WithUserID(context.Background(), "test-user-123")
 
 	tests := []struct {
 		name       string
@@ -445,7 +446,7 @@ func TestAdminHandler_GetTaskHistory(t *testing.T) {
 
 	logger := logger.NewLogger("debug")
 	handler := NewAdminHandler(services, logger)
-	ctx := context.Background()
+	ctx := auth.WithUserID(context.Background(), "test-user-123")
 
 	tests := []struct {
 		name       string

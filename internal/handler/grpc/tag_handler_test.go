@@ -9,6 +9,7 @@ import (
 
 	todov1 "github.com/lloydsk/todo-app-proto/gen/go/todo/v1"
 
+	"github.com/todo-app/services/admin-service/internal/auth"
 	"github.com/todo-app/services/admin-service/internal/model/domain"
 	"github.com/todo-app/services/admin-service/internal/repository"
 	"github.com/todo-app/services/admin-service/pkg/logger"
@@ -98,7 +99,7 @@ func setupTagHandler(t *testing.T) (*TagHandler, *mockTagService) {
 
 func TestTagHandler_CreateTag(t *testing.T) {
 	handler, tagService := setupTagHandler(t)
-	ctx := context.Background()
+	ctx := auth.WithUserID(context.Background(), "test-user-123")
 
 	tests := []struct {
 		name       string
@@ -182,7 +183,7 @@ func TestTagHandler_CreateTag(t *testing.T) {
 
 func TestTagHandler_ListTags(t *testing.T) {
 	handler, tagService := setupTagHandler(t)
-	ctx := context.Background()
+	ctx := auth.WithUserID(context.Background(), "test-user-123")
 
 	// Add test tags
 	tag1 := &domain.Tag{
@@ -255,7 +256,7 @@ func TestTagHandler_ListTags(t *testing.T) {
 
 func TestTagHandler_UpdateTag(t *testing.T) {
 	handler, tagService := setupTagHandler(t)
-	ctx := context.Background()
+	ctx := auth.WithUserID(context.Background(), "test-user-123")
 
 	// Add a test tag
 	testTag := &domain.Tag{
@@ -360,7 +361,7 @@ func TestTagHandler_UpdateTag(t *testing.T) {
 
 func TestTagHandler_DeleteTag(t *testing.T) {
 	handler, tagService := setupTagHandler(t)
-	ctx := context.Background()
+	ctx := auth.WithUserID(context.Background(), "test-user-123")
 
 	// Add a test tag
 	testTag := &domain.Tag{

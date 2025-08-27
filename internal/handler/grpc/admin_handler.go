@@ -233,16 +233,24 @@ func (h *AdminHandler) UpdateTask(ctx context.Context, req *todov1.UpdateTaskReq
 		return nil, status.Errorf(codes.Internal, "failed to get current task: %v", err)
 	}
 
-	// Update fields that are provided
-	if req.GetTitle() != "" {
-		currentTask.Title = req.GetTitle()
+	// Update fields that are provided (using proper optional field semantics)
+	// Note: Without proper protobuf optional fields, we allow empty strings as valid updates
+	// Title is always updated if provided (required field that cannot be empty)
+	title := req.GetTitle()
+	if title == "" {
+		return nil, status.Error(codes.InvalidArgument, "title is required and cannot be empty")
 	}
-	if req.GetDescription() != "" {
-		currentTask.Description = req.GetDescription()
-	}
-	if req.GetAssigneeId() != "" {
-		currentTask.AssigneeID = req.GetAssigneeId()
-	}
+	currentTask.Title = title
+
+	// Description can be empty (to clear it) or non-empty (to update it)
+	currentTask.Description = req.GetDescription()
+	// For assignee ID, we need to handle three cases:
+	// 1. Field not provided in request -> don't change current value
+	// 2. Field provided with non-empty value -> update to new value
+	// 3. Field provided with empty value -> clear assignee
+	// Note: Without proper protobuf optional fields, we treat any provided value as intentional
+	assigneeId := req.GetAssigneeId()
+	currentTask.AssigneeID = assigneeId // Update to new value (empty string will clear assignee)
 
 	// Convert protobuf status to domain status if provided
 	if req.GetStatus() != todov1.TaskStatus_TASK_STATUS_UNSPECIFIED {

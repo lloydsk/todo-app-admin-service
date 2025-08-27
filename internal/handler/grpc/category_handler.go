@@ -41,8 +41,8 @@ func (h *CategoryHandler) CreateCategory(ctx context.Context, req *todov1.Create
 	// Get user ID from auth context
 	creatorID := auth.GetUserIDFromContext(ctx)
 	if creatorID == "" {
-		h.logger.Warn(ctx, "No user ID found in context, using system")
-		creatorID = "system" // Fallback for unauthenticated requests
+		h.logger.Error(ctx, "User ID not found in context")
+		return nil, status.Error(codes.Unauthenticated, "user authentication required")
 	}
 
 	// Create domain category with required fields
@@ -160,8 +160,12 @@ func (h *CategoryHandler) UpdateCategory(ctx context.Context, req *todov1.Update
 			currentCategory.Version, req.GetVersion())
 	}
 
-	// Update fields that are provided (using proper optional field semantics)
-	currentCategory.Name = req.GetName() // Always update name (required field)
+	// Validate and update fields that are provided (using proper optional field semantics)
+	name := req.GetName()
+	if name == "" {
+		return nil, status.Error(codes.InvalidArgument, "name is required and cannot be empty")
+	}
+	currentCategory.Name = name // Always update name (required field)
 
 	// Update optional description if provided
 	if req.Description != nil {
