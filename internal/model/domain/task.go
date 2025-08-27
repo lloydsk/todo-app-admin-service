@@ -3,7 +3,7 @@ package domain
 import (
 	"time"
 
-	pb "github.com/todo-app/todo-app-proto/gen/go/todo/v1"
+	pb "github.com/lloydsk/todo-app-proto/gen/go/todo/v1"
 )
 
 // TaskStatus represents the current state of a task

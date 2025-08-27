@@ -16,7 +16,7 @@ import (
 	"github.com/todo-app/services/admin-service/internal/service"
 	"github.com/todo-app/services/admin-service/pkg/db"
 	"github.com/todo-app/services/admin-service/pkg/logger"
-	todov1 "github.com/todo-app/todo-app-proto/gen/go/todo/v1"
+	todov1 "github.com/lloydsk/todo-app-proto/gen/go/todo/v1"
 )
 
 const bufSize = 1024 * 1024

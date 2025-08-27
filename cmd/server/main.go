@@ -4,17 +4,17 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"net"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
+	"golang.org/x/net/http2"
+	"golang.org/x/net/http2/h2c"
 
 	"github.com/todo-app/services/admin-service/internal/config"
-	grpchandler "github.com/todo-app/services/admin-service/internal/handler/grpc"
+	connecthandler "github.com/todo-app/services/admin-service/internal/handler/connect"
 	"github.com/todo-app/services/admin-service/internal/repository/postgres"
 	"github.com/todo-app/services/admin-service/internal/service"
 	"github.com/todo-app/services/admin-service/pkg/db"
@@ -67,32 +67,25 @@ func main() {
 		Tag:      service.NewTagService(tagRepo, taskRepo, log),
 	}
 
-	// Initialize gRPC server
-	grpcServer := grpc.NewServer(
-		grpc.UnaryInterceptor(loggingInterceptor(log)),
-	)
+	// Initialize HTTP mux for ConnectRPC (supports both gRPC and HTTP/JSON)
+	mux := http.NewServeMux()
 
-	// Register gRPC handlers (to be implemented)
-	grpcHandler := grpchandler.NewHandler(services, log)
-	grpcHandler.RegisterServices(grpcServer)
+	// Register ConnectRPC handlers
+	connectHandler := connecthandler.NewHandler(services, log)
+	connectHandler.RegisterServices(mux)
 
-	// Enable gRPC reflection for development
-	reflection.Register(grpcServer)
-
-	// Start server
-	address := fmt.Sprintf(":%d", cfg.Server.Port)
-	listener, err := net.Listen("tcp", address)
-	if err != nil {
-		log.Error(context.Background(), "Failed to create listener", "error", err, "address", address)
-		os.Exit(1)
+	// Create HTTP server that can handle both ConnectRPC protocols (gRPC and HTTP/JSON)
+	httpServer := &http.Server{
+		Addr: fmt.Sprintf(":%d", cfg.Server.Port),
+		Handler: h2c.NewHandler(mux, &http2.Server{}),
 	}
 
-	log.Info(context.Background(), "Starting gRPC server", "address", address)
+	log.Info(context.Background(), "Starting server with ConnectRPC support (gRPC + HTTP/JSON)", "address", httpServer.Addr)
 
 	// Start server in goroutine
 	serverErrors := make(chan error, 1)
 	go func() {
-		serverErrors <- grpcServer.Serve(listener)
+		serverErrors <- httpServer.ListenAndServe()
 	}()
 
 	// Wait for shutdown signal
@@ -117,7 +110,9 @@ func main() {
 		shutdownComplete := make(chan struct{})
 
 		go func() {
-			grpcServer.GracefulStop()
+			if err := httpServer.Shutdown(shutdownCtx); err != nil {
+				log.Error(context.Background(), "Server shutdown error", "error", err)
+			}
 			close(shutdownComplete)
 		}()
 
@@ -127,40 +122,10 @@ func main() {
 			log.Info(context.Background(), "Server shutdown completed")
 		case <-shutdownCtx.Done():
 			log.Warn(context.Background(), "Shutdown timeout exceeded, forcing stop")
-			grpcServer.Stop()
+			httpServer.Close()
 		}
 	}
 
 	log.Info(context.Background(), "Server stopped")
 }
 
-// loggingInterceptor provides request logging for gRPC calls
-func loggingInterceptor(log logger.Logger) grpc.UnaryServerInterceptor {
-	return func(
-		ctx context.Context,
-		req interface{},
-		info *grpc.UnaryServerInfo,
-		handler grpc.UnaryHandler,
-	) (interface{}, error) {
-		start := time.Now()
-
-		resp, err := handler(ctx, req)
-
-		duration := time.Since(start)
-
-		if err != nil {
-			log.Error(ctx, "gRPC request failed",
-				"method", info.FullMethod,
-				"duration", duration,
-				"error", err,
-			)
-		} else {
-			log.Info(ctx, "gRPC request completed",
-				"method", info.FullMethod,
-				"duration", duration,
-			)
-		}
-
-		return resp, err
-	}
-}
