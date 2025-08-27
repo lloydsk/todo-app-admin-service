@@ -6,12 +6,13 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	todov1 "github.com/lloydsk/todo-app-proto/gen/go/todo/v1"
+
 	"github.com/todo-app/services/admin-service/internal/auth"
 	"github.com/todo-app/services/admin-service/internal/model/domain"
 	"github.com/todo-app/services/admin-service/internal/repository"
 	"github.com/todo-app/services/admin-service/internal/service"
 	"github.com/todo-app/services/admin-service/pkg/logger"
-	todov1 "github.com/lloydsk/todo-app-proto/gen/go/todo/v1"
 )
 
 // TagHandler implements the gRPC TagService
@@ -146,7 +147,7 @@ func (h *TagHandler) UpdateTag(ctx context.Context, req *todov1.UpdateTagRequest
 
 	// Update fields that are provided (using proper optional field semantics)
 	currentTag.Name = req.GetName() // Always update name (required field)
-	
+
 	// Update optional color if provided
 	if req.Color != nil {
 		currentTag.Color = *req.Color

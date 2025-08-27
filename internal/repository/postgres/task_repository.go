@@ -9,6 +9,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
+
 	"github.com/todo-app/services/admin-service/internal/model/domain"
 	"github.com/todo-app/services/admin-service/internal/repository"
 )
@@ -300,7 +301,12 @@ func (r *taskRepository) AddCategories(ctx context.Context, taskID string, categ
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %w", err)
 	}
-	defer tx.Rollback()
+	defer func() {
+		if err := tx.Rollback(); err != nil && err != sql.ErrTxDone {
+			// Log rollback error but don't override main error
+			fmt.Printf("Warning: transaction rollback failed: %v\n", err)
+		}
+	}()
 
 	// Verify task exists and version matches
 	var currentVersion int64
@@ -343,7 +349,12 @@ func (r *taskRepository) RemoveCategories(ctx context.Context, taskID string, ca
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %w", err)
 	}
-	defer tx.Rollback()
+	defer func() {
+		if err := tx.Rollback(); err != nil && err != sql.ErrTxDone {
+			// Log rollback error but don't override main error
+			fmt.Printf("Warning: transaction rollback failed: %v\n", err)
+		}
+	}()
 
 	// Verify task exists and version matches
 	var currentVersion int64
@@ -396,7 +407,12 @@ func (r *taskRepository) RemoveTags(ctx context.Context, taskID string, tagIDs [
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %w", err)
 	}
-	defer tx.Rollback()
+	defer func() {
+		if err := tx.Rollback(); err != nil && err != sql.ErrTxDone {
+			// Log rollback error but don't override main error
+			fmt.Printf("Warning: transaction rollback failed: %v\n", err)
+		}
+	}()
 
 	// Verify task exists and version matches
 	var currentVersion int64
@@ -435,7 +451,12 @@ func (r *taskRepository) AddTags(ctx context.Context, taskID string, tagIDs []st
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %w", err)
 	}
-	defer tx.Rollback()
+	defer func() {
+		if err := tx.Rollback(); err != nil && err != sql.ErrTxDone {
+			// Log rollback error but don't override main error
+			fmt.Printf("Warning: transaction rollback failed: %v\n", err)
+		}
+	}()
 
 	// Verify task exists and version matches
 	var currentVersion int64

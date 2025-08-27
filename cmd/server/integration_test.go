@@ -49,15 +49,13 @@ func TestRealServerStartup(t *testing.T) {
 
 	// Create client and test connection
 	address := fmt.Sprintf("localhost:%d", port)
-	conn, err := grpc.DialContext(
-		context.Background(),
-		address,
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithBlock(),
-		grpc.WithTimeout(5*time.Second),
-	)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	conn, err := grpc.NewClient(address,
+		grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		t.Fatalf("Failed to connect to server: %v", err)
+		t.Fatalf("Failed to create gRPC client: %v", err)
 	}
 	defer conn.Close()
 
@@ -65,9 +63,6 @@ func TestRealServerStartup(t *testing.T) {
 	client := todov1.NewAdminServiceClient(conn)
 
 	// Test a simple call
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
 	resp, err := client.ListUsers(ctx, &todov1.ListUsersRequest{})
 	if err != nil {
 		t.Fatalf("Unexpected error calling ListUsers: %v", err)
@@ -75,6 +70,7 @@ func TestRealServerStartup(t *testing.T) {
 
 	if resp == nil {
 		t.Error("Expected response but got nil")
+		return
 	}
 
 	t.Logf("Successfully connected to server and received response with %d users", len(resp.Users))

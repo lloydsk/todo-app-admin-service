@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	todov1 "github.com/lloydsk/todo-app-proto/gen/go/todo/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/test/bufconn"
@@ -16,7 +17,6 @@ import (
 	"github.com/todo-app/services/admin-service/internal/service"
 	"github.com/todo-app/services/admin-service/pkg/db"
 	"github.com/todo-app/services/admin-service/pkg/logger"
-	todov1 "github.com/lloydsk/todo-app-proto/gen/go/todo/v1"
 )
 
 const bufSize = 1024 * 1024
@@ -93,7 +93,7 @@ func setupTestServer(t *testing.T) (*grpc.Server, *bufconn.Listener, todov1.Admi
 	}()
 
 	// Create client connection
-	conn, err := grpc.DialContext(context.Background(), "bufnet",
+	conn, err := grpc.NewClient("bufnet",
 		grpc.WithContextDialer(func(context.Context, string) (net.Conn, error) {
 			return lis.Dial()
 		}),

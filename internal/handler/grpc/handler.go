@@ -1,11 +1,11 @@
 package grpc
 
 import (
+	todov1 "github.com/lloydsk/todo-app-proto/gen/go/todo/v1"
 	"google.golang.org/grpc"
 
 	"github.com/todo-app/services/admin-service/internal/service"
 	"github.com/todo-app/services/admin-service/pkg/logger"
-	todov1 "github.com/lloydsk/todo-app-proto/gen/go/todo/v1"
 )
 
 // Handler holds the gRPC handlers and their dependencies

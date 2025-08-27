@@ -7,6 +7,7 @@ import (
 	"time"
 
 	_ "github.com/lib/pq" // PostgreSQL driver
+
 	"github.com/todo-app/services/admin-service/internal/config"
 )
 

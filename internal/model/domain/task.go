@@ -14,7 +14,7 @@ const (
 	TaskStatusOpen        TaskStatus = "OPEN"
 	TaskStatusInProgress  TaskStatus = "IN_PROGRESS"
 	TaskStatusCompleted   TaskStatus = "COMPLETED"
-	TaskStatusCancelled   TaskStatus = "CANCELLED"
+	TaskStatusCancelled   TaskStatus = "CANCELED"
 )
 
 // TaskPriority represents task importance

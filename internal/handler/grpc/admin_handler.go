@@ -3,6 +3,7 @@ package grpc
 import (
 	"context"
 
+	todov1 "github.com/lloydsk/todo-app-proto/gen/go/todo/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -10,7 +11,6 @@ import (
 	"github.com/todo-app/services/admin-service/internal/repository"
 	"github.com/todo-app/services/admin-service/internal/service"
 	"github.com/todo-app/services/admin-service/pkg/logger"
-	todov1 "github.com/lloydsk/todo-app-proto/gen/go/todo/v1"
 )
 
 // AdminHandler implements the gRPC AdminService

@@ -3,6 +3,7 @@ package grpc
 import (
 	"context"
 
+	todov1 "github.com/lloydsk/todo-app-proto/gen/go/todo/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -11,7 +12,6 @@ import (
 	"github.com/todo-app/services/admin-service/internal/repository"
 	"github.com/todo-app/services/admin-service/internal/service"
 	"github.com/todo-app/services/admin-service/pkg/logger"
-	todov1 "github.com/lloydsk/todo-app-proto/gen/go/todo/v1"
 )
 
 // CategoryHandler implements the gRPC CategoryService
@@ -162,13 +162,13 @@ func (h *CategoryHandler) UpdateCategory(ctx context.Context, req *todov1.Update
 
 	// Update fields that are provided (using proper optional field semantics)
 	currentCategory.Name = req.GetName() // Always update name (required field)
-	
+
 	// Update optional description if provided
 	if req.Description != nil {
 		currentCategory.Description = *req.Description
 	}
-	
-	// Update optional color if provided  
+
+	// Update optional color if provided
 	if req.Color != nil {
 		currentCategory.Color = *req.Color
 	}
