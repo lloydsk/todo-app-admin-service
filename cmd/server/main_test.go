@@ -62,7 +62,10 @@ func setupTestServer(t *testing.T) (*grpc.Server, *bufconn.Listener, todov1.Admi
 	}
 
 	// Set service context
-	dbConn.SetServiceContext(context.Background(), "test-admin-service")
+	if err := dbConn.SetServiceContext(context.Background(), "test-admin-service"); err != nil {
+		// Log warning but don't fail test setup for service context issues
+		t.Logf("Warning: failed to set service context: %v", err)
+	}
 
 	// Initialize repositories
 	userRepo := postgres.NewUserRepository(dbConn.DB)
